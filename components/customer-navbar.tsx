@@ -115,7 +115,7 @@ export function CustomerNavbar({ user, onMenuClick, searchPlaceholder = "Zoek ze
                   {user.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="hidden sm:flex flex-col">
-                  <div className="font-semibold text-sm text-slate-900">{user.name}</div>
+                  <div className="font-semibold text-sm text-slate-900">{user.name.split(" ")[0]}</div>
                   <div className="text-xs text-slate-500">{user.company || "Particulier"}</div>
                 </div>
                 <ChevronDown className="w-4 h-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -127,7 +127,7 @@ export function CustomerNavbar({ user, onMenuClick, searchPlaceholder = "Zoek ze
               sideOffset={8}
             >
               <div className="px-3 py-2 mb-2">
-                <div className="font-medium text-sm text-slate-900">{user.name}</div>
+                <div className="font-medium text-sm text-slate-900">{user.name.split(" ")[0]}</div>
                 <div className="text-xs text-slate-500">{user.email}</div>
               </div>
               <DropdownMenuSeparator className="bg-[#2069ff]/10" />
