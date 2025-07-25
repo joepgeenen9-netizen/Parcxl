@@ -82,10 +82,7 @@ export function CustomerNavbar({ user, onMenuClick, searchPlaceholder = "Zoek ze
               }`}
             />
           </button>
-          <div className="hidden lg:block">
-            <h1 className="text-xl font-semibold text-slate-900">Welkom terug, {user.name.split(" ")[0]}!</h1>
-            <p className="text-sm text-slate-500">Beheer je zendingen en verzendlabels</p>
-          </div>
+          <div className="flex flex-col gap-2">{/* Empty left side */}</div>
         </div>
 
         <div className="flex gap-3 lg:gap-6 items-center">
