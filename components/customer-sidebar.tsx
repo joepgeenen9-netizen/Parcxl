@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Plus, Package, MapPin, FileText, BarChart3, Settings, HelpCircle } from "lucide-react"
+import { LayoutDashboard, Plus, Package, FileText, BarChart3, Settings, HelpCircle } from "lucide-react"
 
 interface CustomerSidebarProps {
   user: any
@@ -50,16 +50,16 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
 
   const navItems = [
     { name: "Dashboard", badge: null, icon: LayoutDashboard, href: "/dashboard" },
+    { name: "Orders", badge: "12", icon: Package, href: "/dashboard/orders" },
     { name: "Verzenden", badge: "Nieuw", icon: Plus, href: "/dashboard/verzenden" },
-    { name: "Mijn Zendingen", badge: "12", icon: Package, href: "/dashboard/zendingen" },
-    { name: "Adresboek", badge: null, icon: MapPin, href: "/dashboard/adressen" },
     { name: "Facturen", badge: "3", icon: FileText, href: "/dashboard/facturen" },
-    { name: "Rapporten", badge: null, icon: BarChart3, href: "/dashboard/rapporten" },
+    { name: "Prijzen", badge: null, icon: BarChart3, href: "/dashboard/prijzen" },
+    { name: "Integraties", badge: null, icon: Settings, href: "/dashboard/integraties" },
   ]
 
   const managementItems = [
-    { name: "Instellingen", badge: null, icon: Settings, href: "/dashboard/instellingen" },
     { name: "Help & Support", badge: null, icon: HelpCircle, href: "/dashboard/help" },
+    { name: "Instellingen", badge: null, icon: Settings, href: "/dashboard/instellingen" },
   ]
 
   const sidebarContent = (
