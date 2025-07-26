@@ -1,30 +1,33 @@
+import { createServerClient } from "@/lib/supabase"
 import { redirect } from "next/navigation"
-import { createServerClient } from "@/lib/supabase-server"
 import AdminDashboard from "@/admin-dashboard"
 
 export default async function AdminPage() {
   const supabase = createServerClient()
 
   try {
+    // Get the current user
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (userError || !user) {
       redirect("/login")
     }
 
-    const { data: profile, error } = await supabase
+    // Get user profile to check role
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("user_type")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .maybeSingle()
 
-    if (error || !profile) {
-      console.error("Profile fetch error:", error)
+    if (profileError || !profile) {
       redirect("/login")
     }
 
+    // Check if user is admin
     if (profile.user_type !== "admin") {
       redirect("/customer")
     }

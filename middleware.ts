@@ -11,38 +11,28 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // Allow access to auth pages and public assets
-  if (
-    req.nextUrl.pathname.startsWith("/login") ||
-    req.nextUrl.pathname.startsWith("/signup") ||
-    req.nextUrl.pathname.startsWith("/_next") ||
-    req.nextUrl.pathname.startsWith("/api") ||
-    req.nextUrl.pathname.startsWith("/public")
-  ) {
-    return res
-  }
-
-  // Redirect to login if no session
-  if (!session) {
+  // If user is not signed in and the current path is not /login or /signup, redirect to /login
+  if (!session && !req.nextUrl.pathname.startsWith("/login") && !req.nextUrl.pathname.startsWith("/signup")) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
 
-  // Check user role for protected routes
-  if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/customer")) {
-    const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
+  // If user is signed in and trying to access /login or /signup, redirect based on their role
+  if (session && (req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/signup"))) {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("user_type")
+        .eq("id", session.user.id)
+        .maybeSingle()
 
-    if (!profile) {
-      return NextResponse.redirect(new URL("/login", req.url))
-    }
-
-    // Redirect admin users away from customer routes
-    if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
-      return NextResponse.redirect(new URL("/admin", req.url))
-    }
-
-    // Redirect customer users away from admin routes
-    if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
-      return NextResponse.redirect(new URL("/customer", req.url))
+      if (profile?.user_type === "admin") {
+        return NextResponse.redirect(new URL("/admin", req.url))
+      } else {
+        return NextResponse.redirect(new URL("/customer", req.url))
+      }
+    } catch (error) {
+      console.error("Middleware error:", error)
+      // If there's an error, let them access login/signup
     }
   }
 
@@ -53,11 +43,11 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - public folder
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
   ],
 }
