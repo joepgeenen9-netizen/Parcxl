@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 import { createServerClient } from "@/lib/supabase"
-import AdminDashboard from "@/admin-dashboard"
+import CustomerDashboard from "@/customer-dashboard"
 
-export default async function AdminPage() {
+export default async function CustomerPage() {
   const supabase = createServerClient()
 
   try {
@@ -17,7 +17,7 @@ export default async function AdminPage() {
       redirect("/login")
     }
 
-    // Check if user is admin using a simple query
+    // Check if user exists in profiles
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("user_type, first_name, last_name")
@@ -34,14 +34,15 @@ export default async function AdminPage() {
       redirect("/login")
     }
 
-    if (profile.user_type !== "admin") {
-      console.log("User is not admin, redirecting to customer")
-      redirect("/customer")
+    // Admin users should go to admin dashboard
+    if (profile.user_type === "admin") {
+      console.log("User is admin, redirecting to admin")
+      redirect("/admin")
     }
 
-    return <AdminDashboard />
+    return <CustomerDashboard />
   } catch (error) {
-    console.error("Error in admin page:", error)
+    console.error("Error in customer page:", error)
     redirect("/login")
   }
 }

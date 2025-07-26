@@ -1,59 +1,63 @@
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import type { Database } from "@/types/database"
 
-export function middleware(request: NextRequest) {
-  const userSession = request.cookies.get("user-session")
-  const { pathname } = request.nextUrl
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient<Database>({ req, res })
 
-  // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/"]
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  if (publicRoutes.includes(pathname)) {
-    // If user is logged in and tries to access login, redirect to appropriate dashboard
-    if (userSession && pathname === "/login") {
-      try {
-        const user = JSON.parse(userSession.value)
-        if (user.rol === "admin") {
-          return NextResponse.redirect(new URL("/admin", request.url))
-        } else {
-          return NextResponse.redirect(new URL("/dashboard", request.url))
-        }
-      } catch {
-        // Invalid session, continue to login
-      }
-    }
-    return NextResponse.next()
+  // Allow access to auth pages and public assets
+  if (
+    req.nextUrl.pathname.startsWith("/login") ||
+    req.nextUrl.pathname.startsWith("/signup") ||
+    req.nextUrl.pathname.startsWith("/_next") ||
+    req.nextUrl.pathname.startsWith("/api") ||
+    req.nextUrl.pathname.startsWith("/public")
+  ) {
+    return res
   }
 
-  // Protected routes
-  if (!userSession) {
-    return NextResponse.redirect(new URL("/login", request.url))
+  // Redirect to login if no session
+  if (!session) {
+    return NextResponse.redirect(new URL("/login", req.url))
   }
 
-  try {
-    const user = JSON.parse(userSession.value)
+  // Check user role for protected routes
+  if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/customer")) {
+    const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
 
-    // Admin routes
-    if (pathname.startsWith("/admin")) {
-      if (user.rol !== "admin") {
-        return NextResponse.redirect(new URL("/dashboard", request.url))
-      }
+    if (!profile) {
+      return NextResponse.redirect(new URL("/login", req.url))
     }
 
-    // Customer routes
-    if (pathname.startsWith("/dashboard")) {
-      if (user.rol !== "klant") {
-        return NextResponse.redirect(new URL("/admin", request.url))
-      }
+    // Redirect admin users away from customer routes
+    if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
+      return NextResponse.redirect(new URL("/admin", req.url))
     }
 
-    return NextResponse.next()
-  } catch {
-    // Invalid session
-    return NextResponse.redirect(new URL("/login", request.url))
+    // Redirect customer users away from admin routes
+    if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
+      return NextResponse.redirect(new URL("/customer", req.url))
+    }
   }
+
+  return res
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 }
