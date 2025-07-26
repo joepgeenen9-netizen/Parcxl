@@ -1,290 +1,162 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase"
-import { toast } from "sonner"
+import { useToast } from "@/hooks/use-toast"
+import { Loader2 } from "lucide-react"
 
 export function SignupForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [userType, setUserType] = useState<"customer" | "admin">("customer")
   const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  })
   const router = useRouter()
-  const supabase = createClient()
+  const { toast } = useToast()
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      // Validate passwords match
-      if (formData.password !== formData.confirmPassword) {
-        toast.error("Wachtwoorden komen niet overeen")
-        return
-      }
+      const supabase = createClient()
 
-      // Validate password strength
-      if (formData.password.length < 6) {
-        toast.error("Wachtwoord moet minimaal 6 karakters lang zijn")
-        return
-      }
-
-      // Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
         options: {
           data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
+            first_name: firstName,
+            last_name: lastName,
+            user_type: userType,
           },
         },
       })
 
-      if (authError) {
-        console.error("Signup error:", authError)
-        if (authError.message.includes("User already registered")) {
-          toast.error("Er bestaat al een account met dit e-mailadres")
-        } else {
-          toast.error("Fout bij registreren: " + authError.message)
-        }
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Fout bij registreren",
+          description: error.message,
+        })
         return
       }
 
-      if (!authData.user) {
-        toast.error("Fout bij het aanmaken van account")
-        return
-      }
-
-      console.log("User created:", authData.user.id)
-
-      // Check if email confirmation is required
-      if (!authData.session) {
-        toast.success("Account aangemaakt! Controleer je e-mail voor bevestiging.")
+      if (data.user) {
+        toast({
+          title: "Account aangemaakt",
+          description: "Controleer je e-mail voor de bevestigingslink",
+        })
         router.push("/login")
-      } else {
-        // User is automatically signed in
-        toast.success("Account succesvol aangemaakt!")
-
-        // Wait a moment for the profile to be created by the trigger
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        // Redirect to customer dashboard (new users are customers by default)
-        router.push("/customer")
       }
     } catch (error) {
-      console.error("Signup error:", error)
-      toast.error("Er is een fout opgetreden")
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: "Er is een onverwachte fout opgetreden",
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="w-full max-w-md space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-[#2069ff] to-[#1557d4] flex items-center justify-center mb-6 shadow-[0_8px_32px_rgba(32,105,255,0.3)]">
-          <div className="text-white font-bold text-2xl">P</div>
-        </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Account aanmaken</h2>
-        <p className="text-slate-600">Maak je Parcxl account aan</p>
-      </div>
-
-      {/* Signup Form */}
-      <form onSubmit={handleSignup} className="space-y-6">
-        <div className="space-y-4">
-          {/* First Name Field */}
-          <div className="space-y-2">
-            <Label htmlFor="firstName" className="text-sm font-medium text-slate-700">
-              Voornaam
-            </Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Account aanmaken</CardTitle>
+        <CardDescription>Vul je gegevens in om een nieuw account aan te maken</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">Voornaam</Label>
               <Input
                 id="firstName"
-                name="firstName"
                 type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 required
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className="pl-10 h-12 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] rounded-xl"
-                placeholder="Je voornaam"
                 disabled={isLoading}
               />
             </div>
-          </div>
-
-          {/* Last Name Field */}
-          <div className="space-y-2">
-            <Label htmlFor="lastName" className="text-sm font-medium text-slate-700">
-              Achternaam
-            </Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Achternaam</Label>
               <Input
                 id="lastName"
-                name="lastName"
                 type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 required
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className="pl-10 h-12 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] rounded-xl"
-                placeholder="Je achternaam"
                 disabled={isLoading}
               />
             </div>
           </div>
-
-          {/* Email Field */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-slate-700">
-              E-mailadres
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="pl-10 h-12 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] rounded-xl"
-                placeholder="je@email.com"
-                disabled={isLoading}
-              />
-            </div>
+            <Label htmlFor="email">E-mailadres</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="je@voorbeeld.nl"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isLoading}
+            />
           </div>
-
-          {/* Password Field */}
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-slate-700">
-              Wachtwoord
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-              <Input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className="pl-10 pr-10 h-12 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] rounded-xl"
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                disabled={isLoading}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
+            <Label htmlFor="password">Wachtwoord</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              minLength={6}
+            />
           </div>
-
-          {/* Confirm Password Field */}
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
-              Bevestig wachtwoord
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="pl-10 pr-10 h-12 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] rounded-xl"
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                disabled={isLoading}
-              >
-                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
+            <Label htmlFor="userType">Account type</Label>
+            <Select value={userType} onValueChange={(value: "customer" | "admin") => setUserType(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecteer account type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="customer">Klant</SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Account aanmaken...
+              </>
+            ) : (
+              "Account aanmaken"
+            )}
+          </Button>
+        </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+            Al een account?{" "}
+            <a href="/login" className="text-blue-600 hover:underline">
+              Log hier in
+            </a>
+          </p>
         </div>
-
-        {/* Terms and Conditions */}
-        <div className="flex items-center">
-          <input
-            id="terms"
-            name="terms"
-            type="checkbox"
-            required
-            className="h-4 w-4 text-[#2069ff] focus:ring-[#2069ff] border-slate-300 rounded"
-            disabled={isLoading}
-          />
-          <label htmlFor="terms" className="ml-2 block text-sm text-slate-700">
-            Ik ga akkoord met de{" "}
-            <button type="button" className="text-[#2069ff] hover:text-[#1557d4] font-medium">
-              algemene voorwaarden
-            </button>
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-12 bg-gradient-to-r from-[#2069ff] to-[#1557d4] hover:from-[#1557d4] hover:to-[#0f4cb8] text-white font-semibold rounded-xl shadow-[0_4px_16px_rgba(32,105,255,0.3)] hover:shadow-[0_6px_20px_rgba(32,105,255,0.4)] transition-all duration-300 transform hover:translate-y-[-1px]"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Account aanmaken...
-            </>
-          ) : (
-            "Account aanmaken"
-          )}
-        </Button>
-      </form>
-
-      {/* Footer */}
-      <div className="text-center">
-        <p className="text-sm text-slate-600">
-          Al een account?{" "}
-          <button
-            type="button"
-            onClick={() => router.push("/login")}
-            className="text-[#2069ff] hover:text-[#1557d4] font-medium transition-colors"
-            disabled={isLoading}
-          >
-            Log hier in
-          </button>
-        </p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

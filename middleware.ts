@@ -1,63 +1,65 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import type { Database } from "@/types/database"
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient<Database>({ req, res })
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
+        },
+      },
+    },
+  )
+
+  // IMPORTANT: Avoid writing any logic between createServerClient and
+  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // issues with users being randomly logged out.
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  // Allow access to auth pages and public assets
-  if (
-    req.nextUrl.pathname.startsWith("/login") ||
-    req.nextUrl.pathname.startsWith("/signup") ||
-    req.nextUrl.pathname.startsWith("/_next") ||
-    req.nextUrl.pathname.startsWith("/api") ||
-    req.nextUrl.pathname.startsWith("/public")
-  ) {
-    return res
+  if (!user && !request.nextUrl.pathname.startsWith("/login") && !request.nextUrl.pathname.startsWith("/signup")) {
+    // no user, potentially respond by redirecting the user to the login page
+    const url = request.nextUrl.clone()
+    url.pathname = "/login"
+    return NextResponse.redirect(url)
   }
 
-  // Redirect to login if no session
-  if (!session) {
-    return NextResponse.redirect(new URL("/login", req.url))
-  }
+  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
+  // creating a new response object with NextResponse.next() make sure to:
+  // 1. Pass the request in it, like so:
+  //    const myNewResponse = NextResponse.next({ request })
+  // 2. Copy over the cookies, like so:
+  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
+  // 3. Change the myNewResponse object instead of the supabaseResponse object
 
-  // Check user role for protected routes
-  if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/customer")) {
-    const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
-
-    if (!profile) {
-      return NextResponse.redirect(new URL("/login", req.url))
-    }
-
-    // Redirect admin users away from customer routes
-    if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
-      return NextResponse.redirect(new URL("/admin", req.url))
-    }
-
-    // Redirect customer users away from admin routes
-    if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
-      return NextResponse.redirect(new URL("/customer", req.url))
-    }
-  }
-
-  return res
+  return supabaseResponse
 }
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }

@@ -1,25 +1,37 @@
 import { redirect } from "next/navigation"
-import { createServerClient } from "@/lib/supabase"
+import { createServerClient } from "@/lib/supabase-server"
 
 export default async function HomePage() {
   const supabase = createServerClient()
 
-  // Check if user is already authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
-  if (user) {
-    // Get user profile to determine redirect
-    const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", user.id).single()
+    if (!session) {
+      redirect("/login")
+    }
 
-    if (profile?.user_type === "admin") {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("user_type")
+      .eq("id", session.user.id)
+      .maybeSingle()
+
+    if (error || !profile) {
+      console.error("Profile fetch error:", error)
+      redirect("/login")
+    }
+
+    // Redirect based on user type
+    if (profile.user_type === "admin") {
       redirect("/admin")
     } else {
       redirect("/customer")
     }
+  } catch (error) {
+    console.error("Home page error:", error)
+    redirect("/login")
   }
-
-  // If not authenticated, redirect to login
-  redirect("/login")
 }
