@@ -1,8 +1,6 @@
 "use client"
-
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Bell, Search, User, LogOut } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,96 +9,72 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, Search, Menu, LogOut, User, Settings } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import { createClient } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-interface CustomerNavbarProps {
-  onMenuClick: () => void
-}
-
-export function CustomerNavbar({ onMenuClick }: CustomerNavbarProps) {
-  const [isLoading, setIsLoading] = useState(false)
+export function CustomerNavbar() {
   const router = useRouter()
   const supabase = createClient()
 
   const handleLogout = async () => {
-    setIsLoading(true)
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error("Logout error:", error)
-        toast.error("Fout bij uitloggen")
-      } else {
-        toast.success("Succesvol uitgelogd")
-        router.push("/login")
-      }
+      await supabase.auth.signOut()
+      toast.success("Succesvol uitgelogd")
+      router.push("/login")
     } catch (error) {
       console.error("Logout error:", error)
-      toast.error("Er is een fout opgetreden")
-    } finally {
-      setIsLoading(false)
+      toast.error("Fout bij uitloggen")
     }
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={onMenuClick} className="lg:hidden">
-          <Menu className="h-5 w-5" />
-        </Button>
+    <header className="bg-white shadow-sm border-b border-gray-200">
+      <div className="px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Search */}
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input type="text" placeholder="Zoek zendingen..." className="pl-10" />
+            </div>
+          </div>
 
-        <div className="hidden md:flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 min-w-[300px]">
-          <Search className="h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Zoeken..."
-            className="bg-transparent border-none outline-none text-sm flex-1"
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-            3
-          </span>
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                <AvatarFallback>KL</AvatarFallback>
-              </Avatar>
+          {/* Right side */}
+          <div className="flex items-center space-x-4">
+            {/* Notifications */}
+            <Button variant="ghost" size="sm">
+              <Bell className="h-5 w-5" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Klant Account</p>
-                <p className="text-xs leading-none text-muted-foreground">klant@example.com</p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profiel</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Instellingen</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>{isLoading ? "Uitloggen..." : "Uitloggen"}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+            {/* User menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Mijn Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profiel</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Bell className="mr-2 h-4 w-4" />
+                  <span>Notificaties</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Uitloggen</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </div>
     </header>
   )
