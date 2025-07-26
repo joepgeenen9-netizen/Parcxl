@@ -113,34 +113,34 @@ function WelcomeSection({ user }: { user: CustomerUser }) {
       </div>
 
       <style jsx>{`
-        @keyframes conveyorMove {
-          0% { background-position: 0 0; }
-          100% { background-position: 24px 0; }
+      @keyframes conveyorMove {
+        0% { background-position: 0 0; }
+        100% { background-position: 24px 0; }
+      }
+      @keyframes conveyorShimmer {
+        0% { transform: translateX(-100%); opacity: 0; }
+        50% { opacity: 0.3; }
+        100% { transform: translateX(100%); opacity: 0; }
+      }
+      @keyframes packageMove {
+        0% { 
+          transform: translateX(-60px) rotateY(0deg);
+          opacity: 0;
         }
-        @keyframes conveyorShimmer {
-          0% { transform: translateX(-100%); opacity: 0; }
-          50% { opacity: 0.3; }
-          100% { transform: translateX(100%); opacity: 0; }
+        5% { 
+          opacity: 1;
+          transform: translateX(-40px) rotateY(2deg);
         }
-        @keyframes packageMove {
-          0% { 
-            transform: translateX(-60px) rotateY(0deg);
-            opacity: 0;
-          }
-          5% { 
-            opacity: 1;
-            transform: translateX(-40px) rotateY(2deg);
-          }
-          95% { 
-            opacity: 1;
-            transform: translateX(calc(100vw + 20px)) rotateY(-2deg);
-          }
-          100% { 
-            transform: translateX(calc(100vw + 60px)) rotateY(0deg);
-            opacity: 0;
-          }
+        95% { 
+          opacity: 1;
+          transform: translateX(calc(100vw + 20px)) rotateY(-2deg);
         }
-      `}</style>
+        100% { 
+          transform: translateX(calc(100vw + 60px)) rotateY(0deg);
+          opacity: 0;
+        }
+      }
+    `}</style>
     </div>
   )
 }
@@ -306,17 +306,17 @@ function DashboardGrid() {
                 const rect = e.currentTarget.getBoundingClientRect()
                 const size = Math.max(rect.width, rect.height)
                 ripple.style.cssText = `
-                  position: absolute;
-                  border-radius: 50%;
-                  background: rgba(32, 105, 255, 0.3);
-                  width: ${size}px;
-                  height: ${size}px;
-                  left: ${rect.width / 2 - size / 2}px;
-                  top: ${rect.height / 2 - size / 2}px;
-                  transform: scale(0);
-                  animation: ripple 0.6s linear;
-                  pointer-events: none;
-                `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(32, 105, 255, 0.3);
+                width: ${size}px;
+                height: ${size}px;
+                left: ${rect.width / 2 - size / 2}px;
+                top: ${rect.height / 2 - size / 2}px;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+              `
                 e.currentTarget.style.position = "relative"
                 e.currentTarget.appendChild(ripple)
                 setTimeout(() => ripple.remove(), 600)
