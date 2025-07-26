@@ -169,5 +169,3 @@ export function DashboardContent({ stats, recentShipments }: DashboardContentPro
     </div>
   )
 }
-
-export default DashboardContent

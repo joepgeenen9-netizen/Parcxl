@@ -59,5 +59,3 @@ export function CustomerLayout({ user, children, searchPlaceholder = "Zoek zendi
     </div>
   )
 }
-
-export default CustomerLayout

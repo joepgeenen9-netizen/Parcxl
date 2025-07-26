@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import CustomerLayout from "@/components/customer-layout"
-import DashboardContent from "@/components/dashboard-content"
+import { CustomerLayout } from "@/components/customer-layout"
+import { DashboardContent } from "@/components/dashboard-content"
 
 interface User {
   id: number
   gebruikersnaam: string
   email: string
-  rol: string
   contactpersoon: string
   bedrijfsnaam: string
+  rol: string
+  status: string
 }
 
 export default function CustomerDashboardPage() {
@@ -20,8 +21,8 @@ export default function CustomerDashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in
     const userData = localStorage.getItem("user")
+
     if (!userData) {
       router.push("/login")
       return
@@ -52,7 +53,7 @@ export default function CustomerDashboardPage() {
   }
 
   return (
-    <CustomerLayout>
+    <CustomerLayout user={user}>
       <DashboardContent />
     </CustomerLayout>
   )
