@@ -127,20 +127,14 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
         {/* Parcxl Logo */}
         <div className="flex items-center justify-center relative z-10">
           <div className="flex items-center justify-center relative">
-            <div className="relative">
-              <div
-                className={`${isMobile ? "w-24 h-24" : "w-20 h-20"} bg-white rounded-2xl flex items-center justify-center relative overflow-hidden shadow-[0_8px_26px_rgba(32,105,255,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_32px_rgba(32,105,255,0.5)] z-10 p-2`}
-              >
-                <Image
-                  src="/images/parcxl-logo.png"
-                  alt="Parcxl Logo"
-                  width={isMobile ? 80 : 64}
-                  height={isMobile ? 80 : 64}
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
+            <Image
+              src="/images/parcxl-logo.png"
+              alt="Parcxl Logo"
+              width={isMobile ? 140 : 120}
+              height={isMobile ? 80 : 70}
+              className="object-contain transition-all duration-300 hover:scale-105"
+              priority
+            />
           </div>
         </div>
 
