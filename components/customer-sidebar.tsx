@@ -70,7 +70,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
 
       {/* Logo container */}
       <div
-        className={`${isMobile ? "p-2.5 pt-9" : "p-3 px-6"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
+        className={`${isMobile ? "p-1.5 pt-6" : "p-2 px-4"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
       >
         {/* Enhanced animated background */}
         <div
@@ -130,8 +130,8 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             <Image
               src="/images/parcxl-logo.png"
               alt="Parcxl Logo"
-              width={isMobile ? 140 : 120}
-              height={isMobile ? 80 : 70}
+              width={isMobile ? 180 : 160}
+              height={isMobile ? 100 : 90}
               className="object-contain transition-all duration-300 hover:scale-105"
               priority
             />
