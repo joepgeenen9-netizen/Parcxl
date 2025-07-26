@@ -5,8 +5,22 @@ import { CustomerLayout } from "@/components/customer-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Package, Truck, Clock, CheckCircle, Plus, Search, Filter, Download, Eye } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Package,
+  Plus,
+  Search,
+  Truck,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  MapPin,
+  Calendar,
+  User,
+  Mail,
+  Phone,
+} from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
 interface UserData {
@@ -58,7 +72,7 @@ export default function CustomerDashboard() {
     )
   }
 
-  const firstName = userData?.first_name || "Gebruiker"
+  const firstName = userData?.first_name || "Klant"
 
   return (
     <CustomerLayout>
@@ -66,10 +80,10 @@ export default function CustomerDashboard() {
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold mb-2">Welkom terug, {firstName}!</h1>
-          <p className="text-blue-100">Hier is een overzicht van je zendingen en activiteiten.</p>
+          <p className="text-blue-100">Beheer je zendingen en bekijk je verzendhistorie.</p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -78,7 +92,7 @@ export default function CustomerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 van vorige week</p>
+              <p className="text-xs text-muted-foreground">+2 deze week</p>
             </CardContent>
           </Card>
 
@@ -106,141 +120,255 @@ export default function CustomerDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Gemiddelde Tijd</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Totaal Kosten</CardTitle>
+              <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">2.4d</div>
-              <p className="text-xs text-muted-foreground">Leveringstijd</p>
+              <div className="text-2xl font-bold">€1,234</div>
+              <p className="text-xs text-muted-foreground">Deze maand</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Shipments */}
-          <div className="lg:col-span-2">
+        {/* Main Dashboard Tabs */}
+        <Tabs defaultValue="shipments" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="shipments">Mijn Zendingen</TabsTrigger>
+            <TabsTrigger value="create">Nieuwe Zending</TabsTrigger>
+            <TabsTrigger value="history">Geschiedenis</TabsTrigger>
+            <TabsTrigger value="profile">Profiel</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="shipments" className="space-y-4">
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Recente Zendingen</CardTitle>
-                    <CardDescription>Je laatste verzendingen en hun status</CardDescription>
+                    <CardTitle>Actieve Zendingen</CardTitle>
+                    <CardDescription>Overzicht van al je lopende zendingen</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nieuwe Zending
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Zoek zendingen..." className="pl-8 w-64" />
+                    </div>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nieuwe Zending
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {[
                     {
-                      id: "PX-2024-001",
-                      destination: "Amsterdam, NL",
+                      id: "PX789012345",
+                      destination: "Amsterdam, Nederland",
                       status: "In Transit",
-                      progress: 75,
+                      date: "2025-01-26",
                       statusColor: "bg-blue-500",
                     },
                     {
-                      id: "PX-2024-002",
-                      destination: "Rotterdam, NL",
-                      status: "Delivered",
-                      progress: 100,
-                      statusColor: "bg-green-500",
-                    },
-                    {
-                      id: "PX-2024-003",
-                      destination: "Utrecht, NL",
+                      id: "PX789012346",
+                      destination: "Rotterdam, Nederland",
                       status: "Processing",
-                      progress: 25,
+                      date: "2025-01-25",
                       statusColor: "bg-yellow-500",
                     },
                     {
-                      id: "PX-2024-004",
-                      destination: "Den Haag, NL",
-                      status: "Delayed",
-                      progress: 60,
-                      statusColor: "bg-red-500",
+                      id: "PX789012347",
+                      destination: "Utrecht, Nederland",
+                      status: "Delivered",
+                      date: "2025-01-24",
+                      statusColor: "bg-green-500",
                     },
-                  ].map((shipment) => (
-                    <div key={shipment.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <p className="font-medium">{shipment.id}</p>
-                            <p className="text-sm text-muted-foreground">{shipment.destination}</p>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            <div className={`w-2 h-2 rounded-full ${shipment.statusColor} mr-2`}></div>
+                    {
+                      id: "PX789012348",
+                      destination: "Den Haag, Nederland",
+                      status: "Pending",
+                      date: "2025-01-23",
+                      statusColor: "bg-gray-500",
+                    },
+                  ].map((shipment, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-3 h-3 rounded-full ${shipment.statusColor}`}></div>
+                        <div>
+                          <p className="font-medium">{shipment.id}</p>
+                          <p className="text-sm text-muted-foreground flex items-center">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {shipment.destination}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <div className="text-right">
+                          <Badge variant={shipment.status === "Delivered" ? "default" : "secondary"}>
                             {shipment.status}
                           </Badge>
+                          <p className="text-xs text-muted-foreground mt-1 flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {shipment.date}
+                          </p>
                         </div>
-                        <Progress value={shipment.progress} className="h-2" />
+                        <Button variant="ghost" size="sm">
+                          Details
+                        </Button>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
 
-          {/* Quick Actions */}
-          <div className="space-y-6">
+          <TabsContent value="create" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Snelle Acties</CardTitle>
-                <CardDescription>Veelgebruikte functies</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nieuwe Zending
-                </Button>
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Search className="h-4 w-4 mr-2" />
-                  Track & Trace
-                </Button>
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Labels Printen
-                </Button>
-                <Button className="w-full justify-start bg-transparent" variant="outline">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Rapporten
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recente Activiteit</CardTitle>
+                <CardTitle>Nieuwe Zending Aanmaken</CardTitle>
+                <CardDescription>Vul de gegevens in voor je nieuwe zending</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { action: "Zending PX-2024-001 is onderweg", time: "2 uur geleden" },
-                    { action: "Label geprint voor PX-2024-005", time: "4 uur geleden" },
-                    { action: "Zending PX-2024-002 afgeleverd", time: "1 dag geleden" },
-                    { action: "Nieuwe zending aangemaakt", time: "2 dagen geleden" },
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Afzender</h3>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Naam</label>
+                      <Input placeholder="Jouw naam" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Adres</label>
+                      <Input placeholder="Straat en huisnummer" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Postcode</label>
+                        <Input placeholder="1234AB" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Plaats</label>
+                        <Input placeholder="Amsterdam" />
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Ontvanger</h3>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Naam</label>
+                      <Input placeholder="Naam ontvanger" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Adres</label>
+                      <Input placeholder="Straat en huisnummer" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Postcode</label>
+                        <Input placeholder="5678CD" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Plaats</label>
+                        <Input placeholder="Rotterdam" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-6 border-t">
+                  <h3 className="text-lg font-semibold mb-4">Pakket Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Gewicht (kg)</label>
+                      <Input type="number" placeholder="2.5" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Lengte (cm)</label>
+                      <Input type="number" placeholder="30" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Breedte (cm)</label>
+                      <Input type="number" placeholder="20" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end space-x-2">
+                  <Button variant="outline">Opslaan als Concept</Button>
+                  <Button>Zending Aanmaken</Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Verzendhistorie</CardTitle>
+                <CardDescription>Alle je vorige zendingen</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Geschiedenis wordt geladen...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="profile" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profiel Instellingen</CardTitle>
+                <CardDescription>Beheer je account gegevens</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center">
+                        <User className="h-4 w-4 mr-2" />
+                        Voornaam
+                      </label>
+                      <Input value={userData?.first_name || ""} placeholder="Voornaam" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex items-center">
+                        <User className="h-4 w-4 mr-2" />
+                        Achternaam
+                      </label>
+                      <Input value={userData?.last_name || ""} placeholder="Achternaam" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center">
+                      <Mail className="h-4 w-4 mr-2" />
+                      E-mailadres
+                    </label>
+                    <Input type="email" placeholder="je@email.com" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center">
+                      <Phone className="h-4 w-4 mr-2" />
+                      Telefoonnummer
+                    </label>
+                    <Input type="tel" placeholder="+31 6 12345678" />
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <Button>Profiel Bijwerken</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </CustomerLayout>
   )
