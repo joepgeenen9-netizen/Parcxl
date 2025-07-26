@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase"
@@ -22,7 +20,7 @@ export function LoginForm() {
   const router = useRouter()
   const supabase = createClient()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault()
     setLoading(true)
     setError("")
@@ -145,7 +143,7 @@ export function LoginForm() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              {"Don't have an account? "}
               <Link href="/signup" className="text-blue-600 hover:underline font-medium">
                 Sign up
               </Link>
