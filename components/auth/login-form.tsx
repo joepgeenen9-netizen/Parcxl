@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -19,7 +19,6 @@ export function LoginForm() {
   })
   const router = useRouter()
   const supabase = createClient()
-  const { toast } = useToast()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -43,27 +42,15 @@ export function LoginForm() {
       if (authError) {
         console.error("Login error:", authError)
         if (authError.message.includes("Invalid login credentials")) {
-          toast({
-            variant: "destructive",
-            title: "Fout",
-            description: "Ongeldige inloggegevens",
-          })
+          toast.error("Ongeldige inloggegevens")
         } else {
-          toast({
-            variant: "destructive",
-            title: "Fout",
-            description: "Fout bij inloggen",
-          })
+          toast.error("Fout bij inloggen")
         }
         return
       }
 
       if (!authData.user) {
-        toast({
-          variant: "destructive",
-          title: "Fout",
-          description: "Geen gebruiker gevonden",
-        })
+        toast.error("Geen gebruiker gevonden")
         return
       }
 
@@ -86,22 +73,15 @@ export function LoginForm() {
 
       if (profileError) {
         console.error("Profile fetch error:", profileError)
-        toast({
-          variant: "destructive",
-          title: "Fout",
-          description: "Fout bij ophalen profiel. Probeer opnieuw in te loggen.",
-        })
+        // If there's a policy error, try to handle it gracefully
+        toast.error("Fout bij ophalen profiel. Probeer opnieuw in te loggen.")
         await supabase.auth.signOut()
         return
       }
 
       if (!profileData) {
         console.log("No profile found, this might be a new user")
-        toast({
-          variant: "destructive",
-          title: "Fout",
-          description: "Geen profiel gevonden. Neem contact op met support.",
-        })
+        toast.error("Geen profiel gevonden. Neem contact op met support.")
         await supabase.auth.signOut()
         return
       }
@@ -114,33 +94,19 @@ export function LoginForm() {
       if (profileData.user_type === "admin") {
         console.log("Redirecting to admin dashboard")
         router.push("/admin")
-        toast({
-          title: "Succes",
-          description: welcomeMessage,
-        })
+        toast.success(welcomeMessage)
       } else if (profileData.user_type === "customer") {
         console.log("Redirecting to customer dashboard")
         router.push("/customer")
-        toast({
-          title: "Succes",
-          description: welcomeMessage,
-        })
+        toast.success(welcomeMessage)
       } else {
         console.error("Unknown user type:", profileData.user_type)
-        toast({
-          variant: "destructive",
-          title: "Fout",
-          description: "Onbekende gebruikersrol",
-        })
+        toast.error("Onbekende gebruikersrol")
         return
       }
     } catch (error) {
       console.error("Login error:", error)
-      toast({
-        variant: "destructive",
-        title: "Fout",
-        description: "Er is een fout opgetreden",
-      })
+      toast.error("Er is een fout opgetreden")
     } finally {
       setIsLoading(false)
     }
