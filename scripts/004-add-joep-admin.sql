@@ -16,7 +16,7 @@ INSERT INTO accounts (
     rol
 ) VALUES (
     'Joep Admin',
-    '$2b$12$8K9wE2nF5qL7mP3oR6sT8uXvYzA1bC4dE7fG9hI2jK5lM8nO0pQ3r',
+    '$2b$12$8K9wE2nF5qL7mP3oR6sT8eH4jK1nM9pQ2wE5rT7yU8iO3pL6kJ9mN',
     'joep@admin.nl',
     'Hoofdstraat',
     '123',
@@ -29,7 +29,7 @@ INSERT INTO accounts (
     'admin'
 );
 
--- Verificatie query om te controleren of het account is aangemaakt
+-- Verificatie: Toon het nieuwe account
 SELECT 
     id,
     gebruikersnaam,
@@ -42,12 +42,11 @@ SELECT
 FROM accounts 
 WHERE email = 'joep@admin.nl';
 
--- Overzicht van alle admin accounts
+-- Toon alle admin accounts ter controle
 SELECT 
     gebruikersnaam,
     email,
     contactpersoon,
-    bedrijfsnaam,
     status,
     created_at
 FROM accounts 
