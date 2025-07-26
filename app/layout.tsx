@@ -3,13 +3,13 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Parcxl - Customer Dashboard",
-  description: "Professional shipping and logistics dashboard",
+  title: "Parcxl Dashboard",
+  description: "Customer and Admin Dashboard for Parcxl",
     generator: 'v0.dev'
 }
 

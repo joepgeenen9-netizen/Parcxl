@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Plus, Package, FileText, BarChart3, Settings, HelpCircle } from "lucide-react"
-import Image from "next/image"
 import SidebarPromoCard from "./sidebar-promo-card"
 
 interface CustomerSidebarProps {
@@ -125,16 +124,11 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           </div>
         </div>
 
-        {/* Parcxl Logo - increased to 175% */}
+        {/* Parcxl Logo - replaced with text-based logo */}
         <div className="relative z-10">
-          <Image
-            src="/images/parcxl-logo.png"
-            alt="Parcxl Logo"
-            width={isMobile ? 192 : 175}
-            height={isMobile ? 70 : 63}
-            className="object-contain transition-all duration-300 hover:scale-105"
-            priority
-          />
+          <div className="flex items-center justify-center">
+            <div className="text-[#2069ff] font-bold text-2xl tracking-tight">Parcxl</div>
+          </div>
         </div>
 
         {/* Keyframe animations */}

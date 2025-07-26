@@ -4,34 +4,19 @@ import { createServerClient } from "@/lib/supabase-server"
 export default async function HomePage() {
   const supabase = createServerClient()
 
-  try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-    if (!session) {
-      redirect("/login")
-    }
-
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("user_type")
-      .eq("id", session.user.id)
-      .maybeSingle()
-
-    if (error || !profile) {
-      console.error("Profile fetch error:", error)
-      redirect("/login")
-    }
-
-    // Redirect based on user type
-    if (profile.user_type === "admin") {
-      redirect("/admin")
-    } else {
-      redirect("/customer")
-    }
-  } catch (error) {
-    console.error("Home page error:", error)
+  if (!session) {
     redirect("/login")
+  }
+
+  const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
+
+  if (profile?.user_type === "admin") {
+    redirect("/admin")
+  } else {
+    redirect("/customer")
   }
 }
