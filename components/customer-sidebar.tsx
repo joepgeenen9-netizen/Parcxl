@@ -70,7 +70,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
 
       {/* Logo container with fixed height */}
       <div
-        className={`${isMobile ? "h-[56px]" : "h-[64px]"} px-4 relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden flex items-center justify-center`}
+        className={`${isMobile ? "h-[57px]" : "h-[57px]"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden flex items-center justify-center px-4`}
       >
         {/* Enhanced animated background */}
         <div
@@ -86,8 +86,8 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           <div
             className="absolute w-3 h-2 bg-gradient-to-br from-amber-400/50 to-amber-500/50 rounded-sm opacity-70"
             style={{
-              top: "20%",
-              left: "8%",
+              top: "30%",
+              left: "10%",
               animation: "packageFloat1 12s ease-in-out infinite",
               animationDelay: "0s",
             }}
@@ -97,10 +97,10 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           </div>
 
           <div
-            className="absolute w-2.5 h-3 bg-gradient-to-br from-blue-400/45 to-blue-500/45 rounded-sm opacity-60"
+            className="absolute w-2 h-3 bg-gradient-to-br from-blue-400/45 to-blue-500/45 rounded-sm opacity-60"
             style={{
-              top: "25%",
-              right: "12%",
+              top: "35%",
+              right: "15%",
               animation: "packageFloat2 15s ease-in-out infinite",
               animationDelay: "3s",
             }}
@@ -110,10 +110,10 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           </div>
 
           <div
-            className="absolute w-2.5 h-2.5 bg-gradient-to-br from-green-400/45 to-green-500/45 rounded-sm opacity-55"
+            className="absolute w-2 h-2 bg-gradient-to-br from-green-400/45 to-green-500/45 rounded-sm opacity-55"
             style={{
-              bottom: "20%",
-              left: "15%",
+              bottom: "40%",
+              left: "18%",
               animation: "packageFloat3 10s ease-in-out infinite",
               animationDelay: "6s",
             }}
