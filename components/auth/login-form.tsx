@@ -44,15 +44,15 @@ export function LoginForm() {
         console.error("Login error:", authError)
         if (authError.message.includes("Invalid login credentials")) {
           toast({
+            variant: "destructive",
             title: "Fout",
             description: "Ongeldige inloggegevens",
-            variant: "destructive",
           })
         } else {
           toast({
+            variant: "destructive",
             title: "Fout",
             description: "Fout bij inloggen",
-            variant: "destructive",
           })
         }
         return
@@ -60,9 +60,9 @@ export function LoginForm() {
 
       if (!authData.user) {
         toast({
+          variant: "destructive",
           title: "Fout",
           description: "Geen gebruiker gevonden",
-          variant: "destructive",
         })
         return
       }
@@ -87,9 +87,9 @@ export function LoginForm() {
       if (profileError) {
         console.error("Profile fetch error:", profileError)
         toast({
+          variant: "destructive",
           title: "Fout",
           description: "Fout bij ophalen profiel. Probeer opnieuw in te loggen.",
-          variant: "destructive",
         })
         await supabase.auth.signOut()
         return
@@ -98,9 +98,9 @@ export function LoginForm() {
       if (!profileData) {
         console.log("No profile found, this might be a new user")
         toast({
+          variant: "destructive",
           title: "Fout",
           description: "Geen profiel gevonden. Neem contact op met support.",
-          variant: "destructive",
         })
         await supabase.auth.signOut()
         return
@@ -128,18 +128,18 @@ export function LoginForm() {
       } else {
         console.error("Unknown user type:", profileData.user_type)
         toast({
+          variant: "destructive",
           title: "Fout",
           description: "Onbekende gebruikersrol",
-          variant: "destructive",
         })
         return
       }
     } catch (error) {
       console.error("Login error:", error)
       toast({
+        variant: "destructive",
         title: "Fout",
         description: "Er is een fout opgetreden",
-        variant: "destructive",
       })
     } finally {
       setIsLoading(false)
