@@ -332,7 +332,7 @@ function DashboardGrid() {
   )
 }
 
-export default function CustomerDashboard() {
+export function CustomerDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<CustomerUser | null>(null)
 
@@ -371,4 +371,8 @@ export default function CustomerDashboard() {
       <DashboardGrid />
     </CustomerLayout>
   )
+}
+
+export default function CustomerDashboardComponent() {
+  return <CustomerDashboard />
 }

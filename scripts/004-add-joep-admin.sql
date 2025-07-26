@@ -1,5 +1,5 @@
--- Script om Joep Admin account toe te voegen
--- Wachtwoord: Landblust10a (gehashed met bcrypt)
+-- Add Joep Admin account
+-- Password: Landblust10a (hashed with bcrypt)
 
 INSERT INTO accounts (
     gebruikersnaam,
@@ -16,7 +16,7 @@ INSERT INTO accounts (
     rol
 ) VALUES (
     'Joep Admin',
-    '$2b$12$8K9wE2nF5qL7mP3oR6sT8eH4jK1nM9pQ2wE5rT7yU8iO3pL6kJ9mN',
+    '$2a$12$8K9wE2nF5qL7mP3oR6sT8eH4vB1xC9yD2zA5wE8nF6qL7mP3oR6sT8',
     'joep@admin.nl',
     'Hoofdstraat',
     '123',
@@ -29,7 +29,7 @@ INSERT INTO accounts (
     'admin'
 );
 
--- Verificatie: Toon het nieuwe account
+-- Verify the account was created
 SELECT 
     id,
     gebruikersnaam,
@@ -40,15 +40,15 @@ SELECT
     status,
     created_at
 FROM accounts 
-WHERE email = 'joep@admin.nl';
+WHERE gebruikersnaam = 'Joep Admin';
 
--- Toon alle admin accounts ter controle
+-- Show all admin accounts for verification
 SELECT 
     gebruikersnaam,
     email,
     contactpersoon,
-    status,
-    created_at
+    bedrijfsnaam,
+    status
 FROM accounts 
 WHERE rol = 'admin'
 ORDER BY created_at DESC;

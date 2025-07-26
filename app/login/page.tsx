@@ -4,19 +4,16 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Eye, EyeOff, Loader2, User, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Loader2, Package, Shield, User } from "lucide-react"
-import Image from "next/image"
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    gebruikersnaam: "",
-    wachtwoord: "",
-  })
+  const [gebruikersnaam, setGebruikersnaam] = useState("")
+  const [wachtwoord, setWachtwoord] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -33,7 +30,10 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          gebruikersnaam,
+          wachtwoord,
+        }),
       })
 
       const data = await response.json()
@@ -58,169 +58,158 @@ export default function LoginPage() {
     }
   }
 
-  const handleDemoLogin = (username: string, password: string) => {
-    setFormData({ gebruikersnaam: username, wachtwoord: password })
+  const fillDemoAccount = (type: "admin" | "klant") => {
+    if (type === "admin") {
+      setGebruikersnaam("Joep Admin")
+      setWachtwoord("Landblust10a")
+    } else {
+      setGebruikersnaam("jdoe")
+      setWachtwoord("klant123")
+    }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Elements */}
+      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-200/10 to-purple-200/10 rounded-full blur-3xl animate-spin-slow"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse" />
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-300/10 to-purple-300/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "4s" }}
+        />
       </div>
 
-      {/* Floating Elements */}
-      <div className="absolute top-20 left-20 animate-float">
-        <Package className="w-8 h-8 text-blue-400/30" />
-      </div>
-      <div className="absolute top-40 right-32 animate-float-delay-1">
-        <Shield className="w-6 h-6 text-purple-400/30" />
-      </div>
-      <div className="absolute bottom-32 left-32 animate-float-delay-2">
-        <User className="w-7 h-7 text-blue-400/30" />
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 bg-blue-400/30 rounded-full animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${3 + Math.random() * 4}s`,
+            }}
+          />
+        ))}
       </div>
 
-      <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-white/80 border-white/20 shadow-2xl">
-        <CardHeader className="text-center space-y-4">
-          <div className="flex justify-center">
-            <div className="relative w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-4 shadow-lg">
-              <Image
-                src="/images/parcxl-logo.png"
-                alt="Parcxl Logo"
-                width={64}
-                height={64}
-                className="w-full h-full object-contain filter brightness-0 invert"
-              />
-            </div>
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-4">
+            <img src="/images/parcxl-logo.png" alt="Parcxl Logo" className="w-12 h-12 object-contain" />
           </div>
-          <div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Welkom bij Parcxl
-            </CardTitle>
-            <CardDescription className="text-gray-600 mt-2">
-              Log in om toegang te krijgen tot uw dashboard
-            </CardDescription>
-          </div>
-        </CardHeader>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welkom bij Parcxl</h1>
+          <p className="text-gray-600">Log in om toegang te krijgen tot je dashboard</p>
+        </div>
 
-        <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="gebruikersnaam" className="text-sm font-medium text-gray-700">
-                Gebruikersnaam
-              </Label>
-              <Input
-                id="gebruikersnaam"
-                type="text"
-                value={formData.gebruikersnaam}
-                onChange={(e) => setFormData({ ...formData, gebruikersnaam: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Voer uw gebruikersnaam in"
-                required
-              />
-            </div>
+        {/* Login Card */}
+        <Card className="backdrop-blur-xl bg-white/80 border-white/20 shadow-2xl">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Inloggen</CardTitle>
+            <CardDescription className="text-center">Voer je inloggegevens in om door te gaan</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                </Alert>
+              )}
 
-            <div className="space-y-2">
-              <Label htmlFor="wachtwoord" className="text-sm font-medium text-gray-700">
-                Wachtwoord
-              </Label>
-              <div className="relative">
-                <Input
-                  id="wachtwoord"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.wachtwoord}
-                  onChange={(e) => setFormData({ ...formData, wachtwoord: e.target.value })}
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Voer uw wachtwoord in"
-                  required
-                />
-                <button
+              <div className="space-y-2">
+                <Label htmlFor="gebruikersnaam">Gebruikersnaam</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    id="gebruikersnaam"
+                    type="text"
+                    placeholder="Voer je gebruikersnaam in"
+                    value={gebruikersnaam}
+                    onChange={(e) => setGebruikersnaam(e.target.value)}
+                    className="pl-10 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="wachtwoord">Wachtwoord</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    id="wachtwoord"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Voer je wachtwoord in"
+                    value={wachtwoord}
+                    onChange={(e) => setWachtwoord(e.target.value)}
+                    className="pl-10 pr-10 bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Bezig met inloggen...
+                  </>
+                ) : (
+                  "Inloggen"
+                )}
+              </Button>
+            </form>
+
+            {/* Demo accounts */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <p className="text-sm text-gray-600 text-center mb-3">Demo accounts:</p>
+              <div className="flex gap-2">
+                <Button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fillDemoAccount("admin")}
+                  className="flex-1 text-xs"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                  Admin Demo
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fillDemoAccount("klant")}
+                  className="flex-1 text-xs"
+                >
+                  Klant Demo
+                </Button>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-700 text-sm">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Inloggen...
-                </>
-              ) : (
-                "Inloggen"
-              )}
-            </Button>
-          </form>
-
-          {/* Demo Accounts */}
-          <div className="pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center mb-3">Demo accounts voor testen:</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleDemoLogin("admin", "admin123")}
-                className="text-xs hover:bg-purple-50 hover:border-purple-300 transition-colors"
-              >
-                <Shield className="w-3 h-3 mr-1" />
-                Admin Demo
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleDemoLogin("jdoe", "klant123")}
-                className="text-xs hover:bg-blue-50 hover:border-blue-300 transition-colors"
-              >
-                <User className="w-3 h-3 mr-1" />
-                Klant Demo
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes spin-slow {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        .animate-float-delay-1 {
-          animation: float 6s ease-in-out infinite;
-          animation-delay: 2s;
-        }
-        .animate-float-delay-2 {
-          animation: float 6s ease-in-out infinite;
-          animation-delay: 4s;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-      `}</style>
+        {/* Footer */}
+        <div className="text-center mt-8 text-sm text-gray-500">
+          <p>&copy; 2024 Parcxl. Alle rechten voorbehouden.</p>
+        </div>
+      </div>
     </div>
   )
 }

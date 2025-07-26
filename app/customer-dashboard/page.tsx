@@ -2,18 +2,7 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { CustomerLayout } from "@/components/customer-layout"
-import { DashboardContent } from "@/components/dashboard-content"
-
-interface User {
-  id: number
-  gebruikersnaam: string
-  email: string
-  contactpersoon: string
-  bedrijfsnaam: string
-  rol: string
-  status: string
-}
+import { CustomerDashboard } from "@/customer-dashboard"
 
 export default function CustomerDashboardPage() {
   const router = useRouter()
@@ -35,9 +24,5 @@ export default function CustomerDashboardPage() {
     }
   }, [router])
 
-  return (
-    <CustomerLayout>
-      <DashboardContent />
-    </CustomerLayout>
-  )
+  return <CustomerDashboard />
 }
