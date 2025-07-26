@@ -1,15 +1,24 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Package, Users, DollarSign, AlertTriangle } from "lucide-react"
+import { Loader2, Package, Users, DollarSign, AlertTriangle } from "lucide-react"
 import { AdminLayout } from "./components/admin-layout"
-import { getCurrentUser } from "@/lib/auth"
 
 interface AdminUser {
   id: string
   name: string
   email: string
   role: string
+}
+
+interface AdminDashboardProps {
+  initialUser?: {
+    id: string
+    name: string
+    email: string
+    company?: string
+    rol: string
+  }
 }
 
 // Enhanced Welcome section with admin theme
@@ -326,8 +335,44 @@ function AdminDashboardGrid() {
   )
 }
 
-export default async function AdminDashboard() {
-  const user = await getCurrentUser()
+export default function AdminDashboard({ initialUser }: AdminDashboardProps) {
+  const [isLoading, setIsLoading] = useState(!initialUser)
+  const [user, setUser] = useState<AdminUser | null>(
+    initialUser
+      ? {
+          id: initialUser.id,
+          name: initialUser.name,
+          email: initialUser.email,
+          role: initialUser.rol,
+        }
+      : null,
+  )
+
+  useEffect(() => {
+    if (!initialUser) {
+      // Fallback for when no initial user is provided
+      setTimeout(() => {
+        setUser({
+          id: "1",
+          name: "Admin Beheerder",
+          email: "admin@parcxl.com",
+          role: "Administrator",
+        })
+        setIsLoading(false)
+      }, 1000)
+    }
+  }, [initialUser])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#2069ff] mx-auto mb-4" />
+          <p className="text-gray-600">Admin dashboard laden...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!user) {
     return null

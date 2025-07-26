@@ -1,8 +1,7 @@
 "use client"
 
-import { getCurrentUser } from "@/lib/auth"
+import { Loader2, TrendingUp, Clock, Package } from "lucide-react"
 import { useEffect, useState } from "react"
-import { TrendingUp, Clock, Package } from "lucide-react"
 import { CustomerLayout } from "./components/customer-layout"
 
 interface CustomerUser {
@@ -10,6 +9,16 @@ interface CustomerUser {
   name: string
   email: string
   company?: string
+}
+
+interface CustomerDashboardProps {
+  initialUser?: {
+    id: string
+    name: string
+    email: string
+    company?: string
+    rol: string
+  }
 }
 
 // Enhanced Welcome section with shipping theme
@@ -333,8 +342,44 @@ function DashboardGrid() {
   )
 }
 
-export default async function CustomerDashboard() {
-  const user = await getCurrentUser()
+export default function CustomerDashboard({ initialUser }: CustomerDashboardProps) {
+  const [isLoading, setIsLoading] = useState(!initialUser)
+  const [user, setUser] = useState<CustomerUser | null>(
+    initialUser
+      ? {
+          id: initialUser.id,
+          name: initialUser.name,
+          email: initialUser.email,
+          company: initialUser.company,
+        }
+      : null,
+  )
+
+  useEffect(() => {
+    if (!initialUser) {
+      // Fallback for when no initial user is provided
+      setTimeout(() => {
+        setUser({
+          id: "1",
+          name: "Jan Janssen",
+          email: "jan@example.com",
+          company: "Janssen B.V.",
+        })
+        setIsLoading(false)
+      }, 1000)
+    }
+  }, [initialUser])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#2069ff] mx-auto mb-4" />
+          <p className="text-gray-600">Bezig met laden...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!user) {
     return null

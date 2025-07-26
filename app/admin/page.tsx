@@ -13,5 +13,6 @@ export default async function AdminPage() {
     redirect("/dashboard")
   }
 
-  return <AdminDashboard />
+  // Pass user data as props to the client component
+  return <AdminDashboard initialUser={user} />
 }
