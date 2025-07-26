@@ -1,15 +1,35 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
+import { createServerClient } from "@supabase/ssr"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import type { Database } from "@/types/database"
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient<Database>({ req, res })
+  let response = NextResponse.next({
+    request: {
+      headers: req.headers,
+    },
+  })
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
+          response = NextResponse.next({
+            request: {
+              headers: req.headers,
+            },
+          })
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+        },
+      },
+    },
+  )
 
   // Allow access to auth pages and public assets
   if (
@@ -17,47 +37,48 @@ export async function middleware(req: NextRequest) {
     req.nextUrl.pathname.startsWith("/signup") ||
     req.nextUrl.pathname.startsWith("/_next") ||
     req.nextUrl.pathname.startsWith("/api") ||
-    req.nextUrl.pathname.startsWith("/public")
+    req.nextUrl.pathname.startsWith("/public") ||
+    req.nextUrl.pathname === "/"
   ) {
-    return res
+    return response
   }
 
-  // Redirect to login if no session
-  if (!session) {
-    return NextResponse.redirect(new URL("/login", req.url))
-  }
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
-  // Check user role for protected routes
-  if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/customer")) {
-    const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
-
-    if (!profile) {
+    // Redirect to login if no session
+    if (!session) {
       return NextResponse.redirect(new URL("/login", req.url))
     }
 
-    // Redirect admin users away from customer routes
-    if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
-      return NextResponse.redirect(new URL("/admin", req.url))
-    }
+    // Check user role for protected routes
+    if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/customer")) {
+      const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
 
-    // Redirect customer users away from admin routes
-    if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
-      return NextResponse.redirect(new URL("/customer", req.url))
+      if (!profile) {
+        return NextResponse.redirect(new URL("/login", req.url))
+      }
+
+      // Redirect admin users away from customer routes
+      if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
+        return NextResponse.redirect(new URL("/admin", req.url))
+      }
+
+      // Redirect customer users away from admin routes
+      if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
+        return NextResponse.redirect(new URL("/customer", req.url))
+      }
     }
+  } catch (error) {
+    console.error("Middleware error:", error)
+    return NextResponse.redirect(new URL("/login", req.url))
   }
 
-  return res
+  return response
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }

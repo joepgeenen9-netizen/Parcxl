@@ -12,9 +12,6 @@ export default function LoginPage() {
           <LoginForm />
         </div>
       </div>
-
-      {/* Decorative Elements */}
-      {/* Removed decorative elements as per updates */}
     </div>
   )
 }

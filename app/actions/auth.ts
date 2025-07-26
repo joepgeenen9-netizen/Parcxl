@@ -1,8 +1,7 @@
 "use server"
 
-import { createServerClient } from "@/lib/supabase"
+import { createServerClient } from "@/lib/supabase-server"
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
 
 export async function loginAction(formData: FormData) {
   const email = formData.get("email") as string
@@ -12,7 +11,7 @@ export async function loginAction(formData: FormData) {
     return { error: "Email en wachtwoord zijn verplicht" }
   }
 
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   // Authenticate user
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -28,30 +27,21 @@ export async function loginAction(formData: FormData) {
     return { error: "Gebruiker niet gevonden" }
   }
 
-  // Get user role from accounts table
-  const { data: accountData, error: accountError } = await supabase
-    .from("accounts")
-    .select("rol")
-    .eq("email", email)
+  // Get user profile from profiles table
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select("user_type")
+    .eq("id", authData.user.id)
     .single()
 
-  if (accountError || !accountData) {
-    return { error: "Account niet gevonden in database" }
+  if (profileError || !profileData) {
+    return { error: "Profiel niet gevonden in database" }
   }
 
-  // Set session cookie
-  const cookieStore = await cookies()
-  cookieStore.set("supabase-auth-token", authData.session?.access_token || "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  })
-
-  // Redirect based on role
-  if (accountData.rol === "admin") {
+  // Redirect based on user_type
+  if (profileData.user_type === "admin") {
     redirect("/admin")
-  } else if (accountData.rol === "klant") {
+  } else if (profileData.user_type === "customer") {
     redirect("/customer")
   } else {
     return { error: "Onbekende gebruikersrol" }
