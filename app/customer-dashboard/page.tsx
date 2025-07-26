@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { CustomerLayout } from "@/components/customer-layout"
 import { DashboardContent } from "@/components/dashboard-content"
@@ -16,6 +16,8 @@ interface User {
 }
 
 export default function CustomerDashboardPage() {
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -33,10 +35,25 @@ export default function CustomerDashboardPage() {
       router.push("/login")
       return
     }
+
+    setUser(parsedUser)
+    setIsLoading(false)
   }, [router])
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
-    <CustomerLayout>
+    <CustomerLayout user={user}>
       <DashboardContent />
     </CustomerLayout>
   )

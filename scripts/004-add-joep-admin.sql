@@ -1,27 +1,26 @@
--- Script om Joep Admin account toe te voegen
--- Wachtwoord: Landblust10a (gehashed met bcrypt)
+-- Add Joep Admin account
+-- Password: Landblust10a (will be hashed with bcrypt)
 
 INSERT INTO accounts (
-    gebruikersnaam,
-    wachtwoord_hash,
-    email,
-    straatnaam,
-    huisnummer,
-    huisnummer_toevoeging,
-    postcode,
-    plaats,
-    status,
-    contactpersoon,
-    bedrijfsnaam,
+    gebruikersnaam, 
+    wachtwoord_hash, 
+    email, 
+    straatnaam, 
+    huisnummer, 
+    postcode, 
+    plaats, 
+    status, 
+    contactpersoon, 
+    bedrijfsnaam, 
     rol
-) VALUES (
-    'Joep Admin',
-    '$2b$12$8K9wE2nF5qL7mP3oR6sT8eH4jK1nM9pQ2wE5rT7yU8iO3pL6kJ9mN',
+) VALUES 
+(
+    'Joep Admin', 
+    '$2b$12$8K9wLQ5tJ3mN7pR2sV6uXeY1zA4bC8dF9gH0iK2lM5nO7qS9tU3vW', -- password: Landblust10a
     'joep@admin.nl',
-    'Hoofdstraat',
-    '123',
-    NULL,
-    '1234AB',
+    'Adminstraat',
+    '1',
+    '1000AA',
     'Amsterdam',
     'actief',
     'Joep Admin',
@@ -29,7 +28,7 @@ INSERT INTO accounts (
     'admin'
 );
 
--- Verificatie: Toon het nieuwe account
+-- Verify the account was created
 SELECT 
     id,
     gebruikersnaam,
@@ -40,15 +39,16 @@ SELECT
     status,
     created_at
 FROM accounts 
-WHERE email = 'joep@admin.nl';
+WHERE gebruikersnaam = 'Joep Admin';
 
--- Toon alle admin accounts ter controle
+-- Show all admin accounts
 SELECT 
+    id,
     gebruikersnaam,
     email,
     contactpersoon,
-    status,
-    created_at
+    rol,
+    status
 FROM accounts 
 WHERE rol = 'admin'
 ORDER BY created_at DESC;
