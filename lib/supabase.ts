@@ -1,13 +1,12 @@
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createBrowserClient } from "@supabase/ssr"
+import type { Database } from "@/types/database"
 
-// Client-side Supabase client
-export const createClient = () => createClientComponentClient()
+export function createClient() {
+  return createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+}
 
-// Server-side Supabase client for Server Components
-export const createServerClient = () => createServerComponentClient({ cookies })
-
-// Route handler Supabase client
-export const createRouteHandlerSupabaseClient = () => createRouteHandlerClient({ cookies })
+// Legacy export for compatibility
+export const createServerClient = createClient
