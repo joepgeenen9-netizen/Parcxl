@@ -70,7 +70,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
 
       {/* Logo container */}
       <div
-        className={`${isMobile ? "p-1.5 pt-6" : "p-2 px-4"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
+        className={`${isMobile ? "p-1 pt-4" : "p-1.5 px-4"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
       >
         {/* Enhanced animated background */}
         <div
