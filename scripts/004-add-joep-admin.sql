@@ -34,10 +34,10 @@ SELECT
     id,
     gebruikersnaam,
     email,
-    rol,
-    status,
     contactpersoon,
     bedrijfsnaam,
+    rol,
+    status,
     created_at
 FROM accounts 
 WHERE email = 'joep@admin.nl';
@@ -46,8 +46,9 @@ WHERE email = 'joep@admin.nl';
 SELECT 
     gebruikersnaam,
     email,
-    status,
     contactpersoon,
+    bedrijfsnaam,
+    status,
     created_at
 FROM accounts 
 WHERE rol = 'admin'
