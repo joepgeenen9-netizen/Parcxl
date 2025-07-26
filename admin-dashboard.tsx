@@ -11,6 +11,16 @@ interface AdminUser {
   role: string
 }
 
+interface AdminDashboardProps {
+  initialUser?: {
+    id: string
+    name: string
+    email: string
+    company?: string
+    rol: string
+  }
+}
+
 // Enhanced Welcome section with admin theme
 function AdminWelcomeSection({ user }: { user: AdminUser }) {
   return (
@@ -325,22 +335,33 @@ function AdminDashboardGrid() {
   )
 }
 
-export default function AdminDashboard() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<AdminUser | null>(null)
+export default function AdminDashboard({ initialUser }: AdminDashboardProps) {
+  const [isLoading, setIsLoading] = useState(!initialUser)
+  const [user, setUser] = useState<AdminUser | null>(
+    initialUser
+      ? {
+          id: initialUser.id,
+          name: initialUser.name,
+          email: initialUser.email,
+          role: initialUser.rol,
+        }
+      : null,
+  )
 
   useEffect(() => {
-    // Simulate loading and set mock admin user data
-    setTimeout(() => {
-      setUser({
-        id: "1",
-        name: "Admin Beheerder",
-        email: "admin@parcxl.com",
-        role: "Administrator",
-      })
-      setIsLoading(false)
-    }, 1000)
-  }, [])
+    if (!initialUser) {
+      // Fallback for when no initial user is provided
+      setTimeout(() => {
+        setUser({
+          id: "1",
+          name: "Admin Beheerder",
+          email: "admin@parcxl.com",
+          role: "Administrator",
+        })
+        setIsLoading(false)
+      }, 1000)
+    }
+  }, [initialUser])
 
   if (isLoading) {
     return (

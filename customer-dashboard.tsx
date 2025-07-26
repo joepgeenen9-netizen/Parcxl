@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Loader2, TrendingUp, Clock, Package } from "lucide-react"
+import { useEffect, useState } from "react"
 import { CustomerLayout } from "./components/customer-layout"
 
 interface CustomerUser {
@@ -9,6 +9,16 @@ interface CustomerUser {
   name: string
   email: string
   company?: string
+}
+
+interface CustomerDashboardProps {
+  initialUser?: {
+    id: string
+    name: string
+    email: string
+    company?: string
+    rol: string
+  }
 }
 
 // Enhanced Welcome section with shipping theme
@@ -332,22 +342,33 @@ function DashboardGrid() {
   )
 }
 
-export default function CustomerDashboard() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<CustomerUser | null>(null)
+export default function CustomerDashboard({ initialUser }: CustomerDashboardProps) {
+  const [isLoading, setIsLoading] = useState(!initialUser)
+  const [user, setUser] = useState<CustomerUser | null>(
+    initialUser
+      ? {
+          id: initialUser.id,
+          name: initialUser.name,
+          email: initialUser.email,
+          company: initialUser.company,
+        }
+      : null,
+  )
 
   useEffect(() => {
-    // Simulate loading and set mock user data
-    setTimeout(() => {
-      setUser({
-        id: "1",
-        name: "Jan Janssen",
-        email: "jan@example.com",
-        company: "Janssen B.V.",
-      })
-      setIsLoading(false)
-    }, 1000)
-  }, [])
+    if (!initialUser) {
+      // Fallback for when no initial user is provided
+      setTimeout(() => {
+        setUser({
+          id: "1",
+          name: "Jan Janssen",
+          email: "jan@example.com",
+          company: "Janssen B.V.",
+        })
+        setIsLoading(false)
+      }, 1000)
+    }
+  }, [initialUser])
 
   if (isLoading) {
     return (
