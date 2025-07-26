@@ -12,9 +12,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Gebruikersnaam en wachtwoord zijn verplicht" }, { status: 400 })
     }
 
-    // Find user in database
+    // Find user by username
     const users = await sql`
-      SELECT id, gebruikersnaam, wachtwoord_hash, email, contactpersoon, bedrijfsnaam, rol, status
+      SELECT 
+        id,
+        gebruikersnaam,
+        wachtwoord_hash,
+        email,
+        straatnaam,
+        huisnummer,
+        huisnummer_toevoeging,
+        postcode,
+        plaats,
+        status,
+        contactpersoon,
+        bedrijfsnaam,
+        rol
       FROM accounts 
       WHERE gebruikersnaam = ${gebruikersnaam}
       LIMIT 1
@@ -42,7 +55,7 @@ export async function POST(request: NextRequest) {
     const { wachtwoord_hash, ...userWithoutPassword } = user
 
     return NextResponse.json({
-      message: "Succesvol ingelogd",
+      success: true,
       user: userWithoutPassword,
     })
   } catch (error) {
