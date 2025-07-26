@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Plus, Package, FileText, BarChart3, Settings, HelpCircle } from "lucide-react"
 import Image from "next/image"
+import SidebarPromoCard from "./sidebar-promo-card"
 
 interface CustomerSidebarProps {
   user: any
@@ -295,6 +296,9 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             )
           })}
         </div>
+
+        {/* Promo Card at the bottom */}
+        <SidebarPromoCard />
       </nav>
     </div>
   )
