@@ -14,9 +14,7 @@ export default function LoginPage() {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-[#2069ff]/20 to-purple-500/20 rounded-full blur-xl animate-pulse" />
-      <div className="absolute bottom-20 right-20 w-40 h-40 bg-gradient-to-br from-amber-500/20 to-[#2069ff]/20 rounded-full blur-xl animate-pulse delay-1000" />
-      <div className="absolute top-1/2 left-10 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-[#2069ff]/20 rounded-full blur-xl animate-pulse delay-500" />
+      {/* Removed decorative elements as per updates */}
     </div>
   )
 }
