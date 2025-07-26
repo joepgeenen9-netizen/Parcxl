@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(pathname)
 
   // If user is not logged in and trying to access protected route
-  if (!userSession && !isPublicRoute) {
+  if (!userSession && !isPublicRoute && pathname !== "/") {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
@@ -54,5 +54,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 }

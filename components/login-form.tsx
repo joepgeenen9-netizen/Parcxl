@@ -20,8 +20,9 @@ export function LoginForm() {
     startTransition(async () => {
       const result = await loginAction(formData)
 
-      if (result.success && result.redirectTo) {
-        router.push(result.redirectTo)
+      if (result.success) {
+        // Refresh the page to trigger middleware redirect
+        window.location.href = "/"
       } else if (result.error) {
         setError(result.error)
       }
@@ -31,7 +32,6 @@ export function LoginForm() {
   return (
     <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
       <form action={handleSubmit} className="space-y-6">
-        {/* Email field */}
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium text-slate-700">
             Email adres
@@ -44,12 +44,11 @@ export function LoginForm() {
               type="email"
               required
               placeholder="je@email.com"
-              className="pl-10 h-12 bg-white/50 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] transition-all duration-200"
+              className="pl-10 h-12 bg-white/50 border-slate-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
         </div>
 
-        {/* Password field */}
         <div className="space-y-2">
           <Label htmlFor="password" className="text-sm font-medium text-slate-700">
             Wachtwoord
@@ -62,7 +61,7 @@ export function LoginForm() {
               type={showPassword ? "text" : "password"}
               required
               placeholder="••••••••"
-              className="pl-10 pr-10 h-12 bg-white/50 border-slate-200 focus:border-[#2069ff] focus:ring-[#2069ff] transition-all duration-200"
+              className="pl-10 pr-10 h-12 bg-white/50 border-slate-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
             />
             <button
               type="button"
@@ -74,18 +73,16 @@ export function LoginForm() {
           </div>
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
 
-        {/* Submit button */}
         <Button
           type="submit"
           disabled={isPending}
-          className="w-full h-12 bg-gradient-to-r from-[#2069ff] to-[#1557d4] hover:from-[#1557d4] hover:to-[#0f4cb8] text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
           {isPending ? (
             <>
@@ -97,9 +94,8 @@ export function LoginForm() {
           )}
         </Button>
 
-        {/* Forgot password link */}
         <div className="text-center">
-          <button type="button" className="text-sm text-[#2069ff] hover:text-[#1557d4] font-medium transition-colors">
+          <button type="button" className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
             Wachtwoord vergeten?
           </button>
         </div>

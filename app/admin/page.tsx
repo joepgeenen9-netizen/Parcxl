@@ -13,5 +13,5 @@ export default async function AdminPage() {
     redirect("/dashboard")
   }
 
-  return <AdminDashboard initialUser={user} />
+  return <AdminDashboard user={user} />
 }
