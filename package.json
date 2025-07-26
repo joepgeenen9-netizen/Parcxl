@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
@@ -37,7 +38,8 @@
     "@radix-ui/react-toggle": "latest",
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
-    "@supabase/auth-helpers-nextjs": "latest",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "latest",
     "@supabase/supabase-js": "^2.39.3",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
