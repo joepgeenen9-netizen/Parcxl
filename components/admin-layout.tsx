@@ -59,3 +59,5 @@ export function AdminLayout({ user, children, searchPlaceholder = "Zoek klanten,
     </div>
   )
 }
+
+export default AdminLayout

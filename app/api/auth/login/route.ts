@@ -9,70 +9,58 @@ export async function POST(request: NextRequest) {
     const { gebruikersnaam, wachtwoord } = await request.json()
 
     if (!gebruikersnaam || !wachtwoord) {
-      return NextResponse.json({ message: "Gebruikersnaam en wachtwoord zijn verplicht" }, { status: 400 })
+      return NextResponse.json({ error: "Gebruikersnaam en wachtwoord zijn verplicht" }, { status: 400 })
     }
 
-    // Find user by username
+    // Zoek gebruiker in database
     const users = await sql`
       SELECT 
         id,
         gebruikersnaam,
         wachtwoord_hash,
         email,
+        straatnaam,
+        huisnummer,
+        huisnummer_toevoeging,
+        postcode,
+        plaats,
+        status,
         contactpersoon,
         bedrijfsnaam,
-        rol,
-        status
+        rol
       FROM accounts 
       WHERE gebruikersnaam = ${gebruikersnaam}
       LIMIT 1
     `
 
     if (users.length === 0) {
-      return NextResponse.json({ message: "Ongeldige inloggegevens" }, { status: 401 })
+      return NextResponse.json({ error: "Ongeldige inloggegevens" }, { status: 401 })
     }
 
     const user = users[0]
 
-    // Check if account is active
+    // Controleer account status
     if (user.status !== "actief") {
-      return NextResponse.json(
-        { message: "Account is niet actief. Neem contact op met de beheerder." },
-        { status: 401 },
-      )
+      return NextResponse.json({ error: "Account is niet actief. Neem contact op met de beheerder." }, { status: 401 })
     }
 
-    // Verify password
+    // Verificeer wachtwoord
     const isValidPassword = await bcrypt.compare(wachtwoord, user.wachtwoord_hash)
 
     if (!isValidPassword) {
-      return NextResponse.json({ message: "Ongeldige inloggegevens" }, { status: 401 })
+      return NextResponse.json({ error: "Ongeldige inloggegevens" }, { status: 401 })
     }
 
-    // Update last login
-    await sql`
-      UPDATE accounts 
-      SET updated_at = CURRENT_TIMESTAMP 
-      WHERE id = ${user.id}
-    `
-
-    // Return user data (without password hash)
-    const userData = {
-      id: user.id,
-      gebruikersnaam: user.gebruikersnaam,
-      email: user.email,
-      contactpersoon: user.contactpersoon,
-      bedrijfsnaam: user.bedrijfsnaam,
-      rol: user.rol,
-      status: user.status,
-    }
+    // Verwijder wachtwoord hash uit response
+    const { wachtwoord_hash, ...userWithoutPassword } = user
 
     return NextResponse.json({
+      success: true,
+      user: userWithoutPassword,
       message: "Succesvol ingelogd",
-      user: userData,
     })
   } catch (error) {
     console.error("Login error:", error)
-    return NextResponse.json({ message: "Er is een serverfout opgetreden" }, { status: 500 })
+    return NextResponse.json({ error: "Er is een serverfout opgetreden" }, { status: 500 })
   }
 }
