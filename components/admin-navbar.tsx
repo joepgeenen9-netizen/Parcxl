@@ -17,10 +17,17 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 interface AdminNavbarProps {
+  user?: {
+    id: string
+    first_name: string | null
+    last_name: string | null
+    email: string
+  }
   onMenuClick: () => void
+  searchPlaceholder?: string
 }
 
-export function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
+export function AdminNavbar({ user, onMenuClick, searchPlaceholder = "Zoeken..." }: AdminNavbarProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const supabase = createClient()
   const router = useRouter()
@@ -44,6 +51,9 @@ export function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
     }
   }
 
+  const displayName = user?.first_name || user?.email?.split("@")[0] || "Admin"
+  const userEmail = user?.email || "admin@parcxl.com"
+
   return (
     <header className="bg-white border-b border-slate-200 px-4 lg:px-6 h-16 flex items-center justify-between">
       {/* Left side - Mobile menu button */}
@@ -63,7 +73,7 @@ export function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
           <input
             type="text"
-            placeholder="Zoeken..."
+            placeholder={searchPlaceholder}
             className="pl-10 pr-4 py-2 w-64 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2069ff] focus:border-transparent"
           />
         </div>
@@ -92,8 +102,8 @@ export function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Admin User</p>
-                <p className="text-xs leading-none text-muted-foreground">admin@parcxl.com</p>
+                <p className="text-sm font-medium leading-none">{displayName}</p>
+                <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>
                 <div className="flex items-center gap-1 mt-1">
                   <Shield className="h-3 w-3 text-red-600" />
                   <span className="text-xs text-red-600 font-medium">Administrator</span>

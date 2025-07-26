@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -20,7 +19,7 @@ export function LoginForm() {
   const router = useRouter()
   const supabase = createClient()
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: any) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -28,7 +27,7 @@ export function LoginForm() {
     }))
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault()
     setIsLoading(true)
 

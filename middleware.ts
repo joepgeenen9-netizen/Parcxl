@@ -1,11 +1,10 @@
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import type { Database } from "@/types/database"
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
-  const supabase = createMiddlewareClient<Database>({ req, res })
+  const supabase = createMiddlewareClient({ req, res })
 
   const {
     data: { session },
@@ -29,20 +28,25 @@ export async function middleware(req: NextRequest) {
 
   // Check user role for protected routes
   if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname.startsWith("/customer")) {
-    const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
+    try {
+      const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", session.user.id).single()
 
-    if (!profile) {
+      if (!profile) {
+        return NextResponse.redirect(new URL("/login", req.url))
+      }
+
+      // Redirect admin users away from customer routes
+      if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
+        return NextResponse.redirect(new URL("/admin", req.url))
+      }
+
+      // Redirect customer users away from admin routes
+      if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
+        return NextResponse.redirect(new URL("/customer", req.url))
+      }
+    } catch (error) {
+      console.error("Middleware error:", error)
       return NextResponse.redirect(new URL("/login", req.url))
-    }
-
-    // Redirect admin users away from customer routes
-    if (req.nextUrl.pathname.startsWith("/customer") && profile.user_type === "admin") {
-      return NextResponse.redirect(new URL("/admin", req.url))
-    }
-
-    // Redirect customer users away from admin routes
-    if (req.nextUrl.pathname.startsWith("/admin") && profile.user_type === "customer") {
-      return NextResponse.redirect(new URL("/customer", req.url))
     }
   }
 
@@ -50,14 +54,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }
