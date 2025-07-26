@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Plus, Package, FileText, BarChart3, Settings, HelpCircle } from "lucide-react"
+import Image from "next/image"
 
 interface CustomerSidebarProps {
   user: any
@@ -128,13 +129,16 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           <div className="flex items-center justify-center relative">
             <div className="relative">
               <div
-                className={`absolute inset-0 ${isMobile ? "w-24 h-24" : "w-20 h-20"} bg-gradient-to-br from-white/50 to-white/25 rounded-2xl blur-sm`}
-              />
-              <div
-                className={`${isMobile ? "w-24 h-24" : "w-20 h-20"} bg-gradient-to-br from-[#2069ff] to-[#1557d4] rounded-2xl flex items-center justify-center relative overflow-hidden shadow-[0_8px_26px_rgba(32,105,255,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_32px_rgba(32,105,255,0.5)] z-10`}
+                className={`${isMobile ? "w-24 h-24" : "w-20 h-20"} bg-white rounded-2xl flex items-center justify-center relative overflow-hidden shadow-[0_8px_26px_rgba(32,105,255,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_10px_32px_rgba(32,105,255,0.5)] z-10 p-2`}
               >
-                <div className="text-white font-bold text-xl">P</div>
-                <div className="absolute inset-2 bg-gradient-to-br from-white/[0.3] to-transparent rounded-xl animate-[logoShimmer_8s_ease-in-out_infinite]" />
+                <Image
+                  src="/images/parcxl-logo.png"
+                  alt="Parcxl Logo"
+                  width={isMobile ? 80 : 64}
+                  height={isMobile ? 80 : 64}
+                  className="object-contain"
+                  priority
+                />
               </div>
             </div>
           </div>
@@ -219,17 +223,6 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             70% { 
               opacity: 0.65;
               transform: translateY(4px) translateX(-4px) rotate(-6deg);
-            }
-          }
-
-          @keyframes logoShimmer {
-            0%, 100% { 
-              opacity: 0.25;
-              transform: translateX(-100%) rotate(0deg);
-            }
-            50% { 
-              opacity: 0.45;
-              transform: translateX(100%) rotate(180deg);
             }
           }
         `}</style>
