@@ -1,6 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
       profiles: {
@@ -13,7 +13,7 @@ export type Database = {
           phone: string | null
           city: string | null
           postal_code: string | null
-          country: string
+          country: string | null
           created_at: string
           updated_at: string
         }
@@ -26,7 +26,7 @@ export type Database = {
           phone?: string | null
           city?: string | null
           postal_code?: string | null
-          country?: string
+          country?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -39,11 +39,10 @@ export type Database = {
           phone?: string | null
           city?: string | null
           postal_code?: string | null
-          country?: string
+          country?: string | null
           created_at?: string
           updated_at?: string
         }
-        Relationships: []
       }
     }
     Views: {
@@ -54,9 +53,6 @@ export type Database = {
     }
     Enums: {
       user_type: "customer" | "admin"
-    }
-    CompositeTypes: {
-      [_ in never]: never
     }
   }
 }

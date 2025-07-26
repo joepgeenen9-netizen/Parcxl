@@ -1,37 +1,48 @@
 import { redirect } from "next/navigation"
-import { createServerClient } from "@/lib/supabase-server"
+import { createServerClient } from "@/lib/supabase"
 import CustomerDashboard from "@/customer-dashboard"
 
 export default async function CustomerPage() {
   const supabase = createServerClient()
 
   try {
+    // Check authentication
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (userError || !user) {
+      console.log("No authenticated user, redirecting to login")
       redirect("/login")
     }
 
-    const { data: profile, error } = await supabase
+    // Check if user exists in profiles
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("user_type")
-      .eq("id", session.user.id)
+      .select("user_type, first_name, last_name")
+      .eq("id", user.id)
       .maybeSingle()
 
-    if (error || !profile) {
-      console.error("Profile fetch error:", error)
+    if (profileError) {
+      console.error("Profile fetch error:", profileError)
       redirect("/login")
     }
 
-    if (profile.user_type !== "customer") {
+    if (!profile) {
+      console.log("No profile found for user")
+      redirect("/login")
+    }
+
+    // Admin users should go to admin dashboard
+    if (profile.user_type === "admin") {
+      console.log("User is admin, redirecting to admin")
       redirect("/admin")
     }
 
     return <CustomerDashboard />
   } catch (error) {
-    console.error("Customer page error:", error)
+    console.error("Error in customer page:", error)
     redirect("/login")
   }
 }
