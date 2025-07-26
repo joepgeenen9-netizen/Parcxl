@@ -70,7 +70,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
 
       {/* Logo container */}
       <div
-        className={`${isMobile ? "p-1 pt-4" : "p-1.5 px-4"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
+        className={`${isMobile ? "py-1 px-2" : "py-1.5 px-4"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
       >
         {/* Enhanced animated background */}
         <div
@@ -86,7 +86,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           <div
             className="absolute w-4 h-3 bg-gradient-to-br from-amber-400/50 to-amber-500/50 rounded-sm opacity-70"
             style={{
-              top: "18%",
+              top: "25%",
               left: "10%",
               animation: "packageFloat1 12s ease-in-out infinite",
               animationDelay: "0s",
@@ -99,7 +99,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           <div
             className="absolute w-3 h-4 bg-gradient-to-br from-blue-400/45 to-blue-500/45 rounded-sm opacity-60"
             style={{
-              top: "22%",
+              top: "30%",
               right: "15%",
               animation: "packageFloat2 15s ease-in-out infinite",
               animationDelay: "3s",
@@ -112,7 +112,7 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
           <div
             className="absolute w-3 h-3 bg-gradient-to-br from-green-400/45 to-green-500/45 rounded-sm opacity-55"
             style={{
-              bottom: "28%",
+              bottom: "35%",
               left: "18%",
               animation: "packageFloat3 10s ease-in-out infinite",
               animationDelay: "6s",
@@ -130,8 +130,8 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             <Image
               src="/images/parcxl-logo.png"
               alt="Parcxl Logo"
-              width={isMobile ? 180 : 160}
-              height={isMobile ? 100 : 90}
+              width={isMobile ? 140 : 120}
+              height={isMobile ? 60 : 50}
               className="object-contain transition-all duration-300 hover:scale-105"
               priority
             />
