@@ -2,57 +2,37 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
-  const userSession = request.cookies.get("user-session")
   const { pathname } = request.nextUrl
 
-  // Public routes that don't require authentication
-  const publicRoutes = ["/login"]
-  const isPublicRoute = publicRoutes.includes(pathname)
+  // Allow access to login page and public assets
+  if (
+    pathname === "/login" ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/public")
+  ) {
+    return NextResponse.next()
+  }
 
-  // If user is not logged in and trying to access protected route
-  if (!userSession && !isPublicRoute && pathname !== "/") {
+  // Check for auth token
+  const authToken = request.cookies.get("supabase-auth-token")
+
+  if (!authToken && pathname !== "/login") {
     return NextResponse.redirect(new URL("/login", request.url))
-  }
-
-  // If user is logged in and trying to access login page
-  if (userSession && pathname === "/login") {
-    try {
-      const user = JSON.parse(userSession.value)
-      const redirectTo = user.rol === "admin" ? "/admin" : "/dashboard"
-      return NextResponse.redirect(new URL(redirectTo, request.url))
-    } catch {
-      // Invalid session, redirect to login
-      const response = NextResponse.redirect(new URL("/login", request.url))
-      response.cookies.delete("user-session")
-      return response
-    }
-  }
-
-  // Role-based route protection
-  if (userSession) {
-    try {
-      const user = JSON.parse(userSession.value)
-
-      // Admin trying to access customer dashboard
-      if (user.rol === "admin" && pathname === "/dashboard") {
-        return NextResponse.redirect(new URL("/admin", request.url))
-      }
-
-      // Customer trying to access admin dashboard
-      if (user.rol === "klant" && pathname === "/admin") {
-        return NextResponse.redirect(new URL("/dashboard", request.url))
-      }
-    } catch {
-      // Invalid session, redirect to login
-      const response = NextResponse.redirect(new URL("/login", request.url))
-      response.cookies.delete("user-session")
-      return response
-    }
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 }

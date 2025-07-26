@@ -1,25 +1,14 @@
 "use client"
-import { useState, useEffect } from "react"
+
+import { useEffect, useState } from "react"
+import { Loader2, TrendingUp, Clock, Package } from "lucide-react"
 import { CustomerLayout } from "./components/customer-layout"
-import { DashboardContent } from "@/components/dashboard-content"
-import type { User } from "@/lib/auth"
 
 interface CustomerUser {
   id: string
   name: string
   email: string
   company?: string
-  avatar?: string
-  stats?: {
-    totalOrders: number
-    activeShipments: number
-    completedDeliveries: number
-    totalSpent: number
-  }
-}
-
-interface CustomerDashboardProps {
-  user: User
 }
 
 // Enhanced Welcome section with shipping theme
@@ -156,45 +145,230 @@ function WelcomeSection({ user }: { user: CustomerUser }) {
   )
 }
 
-export default function CustomerDashboard({ user }: CustomerDashboardProps) {
-  const [userData, setUserData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+// Statistics cards for customers
+function StatsGrid() {
+  const [animatedValues, setAnimatedValues] = useState([0, 0, 0])
+  const targetValues = [47, 8, 1247]
 
   useEffect(() => {
-    // Simulate loading user data
-    const timer = setTimeout(() => {
-      setUserData({
-        name: user.name,
-        email: user.email,
-        company: user.company,
-        avatar: "/placeholder-user.jpg",
-        stats: {
-          totalOrders: 24,
-          activeShipments: 3,
-          completedDeliveries: 21,
-          totalSpent: 15420,
-        },
+    const animateValue = (index: number, start: number, end: number, duration: number) => {
+      let startTimestamp: number | null = null
+      const step = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1)
+        const currentValue = Math.floor(progress * (end - start) + start)
+
+        setAnimatedValues((prev) => {
+          const newValues = [...prev]
+          newValues[index] = currentValue
+          return newValues
+        })
+
+        if (progress < 1) {
+          window.requestAnimationFrame(step)
+        }
+      }
+      window.requestAnimationFrame(step)
+    }
+
+    setTimeout(() => {
+      targetValues.forEach((value, index) => {
+        animateValue(index, 0, value, 2000)
       })
-      setLoading(false)
-    }, 1000)
+    }, 500)
+  }, [])
 
-    return () => clearTimeout(timer)
-  }, [user])
+  const stats = [
+    {
+      value: animatedValues[0],
+      label: "Totaal Zendingen",
+      trend: "+12 deze maand",
+      period: "Afgelopen 30 dagen",
+      positive: true,
+      icon: Package,
+    },
+    {
+      value: animatedValues[1],
+      label: "Onderweg",
+      trend: "Wordt bezorgd",
+      period: "Tracking beschikbaar",
+      positive: true,
+      icon: Clock,
+    },
+    {
+      value: `€${animatedValues[2]}`,
+      label: "Uitgegeven",
+      trend: "Gemiddeld €26 per zending",
+      period: "Deze maand",
+      positive: true,
+      icon: TrendingUp,
+    },
+  ]
 
-  if (loading) {
-    return (
-      <CustomerLayout user={user}>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-10">
+      {stats.map((stat, index) => {
+        const IconComponent = stat.icon
+        return (
+          <div
+            key={index}
+            className="bg-white/90 backdrop-blur-[20px] rounded-2xl lg:rounded-[20px] p-6 lg:p-8 border border-[#2069ff]/[0.08] transition-all duration-400 hover:transform hover:translate-y-[-8px] hover:shadow-[0_20px_40px_rgba(32,105,255,0.15)] hover:border-[#2069ff]/20 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2069ff] to-[#1557d4] transform scale-x-0 transition-transform duration-400 group-hover:scale-x-100" />
+
+            <div className="flex justify-between items-start mb-4 lg:mb-6">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-[14px] bg-gradient-to-br from-[#2069ff]/10 to-[#1557d4]/10 flex items-center justify-center border border-[#2069ff]/10">
+                <IconComponent className="w-5 h-5 lg:w-6 lg:h-6 text-[#2069ff]" />
+              </div>
+            </div>
+
+            <div className="text-3xl lg:text-[2.75rem] font-extrabold text-slate-900 leading-none mb-2">
+              {typeof stat.value === "string" ? stat.value : stat.value.toLocaleString()}
+            </div>
+            <div className="text-slate-600 text-sm lg:text-base font-medium mb-3">{stat.label}</div>
+            <div className="flex items-center gap-2 text-xs lg:text-sm font-semibold text-emerald-500">
+              <span>↗</span>
+              <span className="truncate">{stat.trend}</span>
+            </div>
+            <div className="text-slate-400 text-xs lg:text-sm font-medium mt-2">{stat.period}</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// Activity feed and quick actions for customers
+function DashboardGrid() {
+  const activities = [
+    { user: "PX", name: "Parcxl", action: "heeft je zending naar Amsterdam verzonden", time: "2 minuten geleden" },
+    { user: "PX", name: "Parcxl", action: "heeft verzendlabel PX123456789 gegenereerd", time: "8 minuten geleden" },
+    { user: "PX", name: "Parcxl", action: "heeft je zending naar Rotterdam afgeleverd", time: "15 minuten geleden" },
+    { user: "JJ", name: "Jan Janssen", action: "heeft een nieuwe zending aangemaakt", time: "32 minuten geleden" },
+    { user: "PX", name: "Parcxl", action: "heeft factuur #INV-2025-001 gegenereerd", time: "45 minuten geleden" },
+  ]
+
+  const quickActions = [
+    "Nieuwe Zending",
+    "Zendingen Bekijken",
+    "Adresboek Beheren",
+    "Facturen Downloaden",
+    "Tracking Opzoeken",
+    "Support Contact",
+  ]
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-6 lg:mb-10">
+      {/* Recent Activity */}
+      <div className="lg:col-span-2 bg-white/90 backdrop-blur-[20px] rounded-2xl lg:rounded-[20px] p-6 lg:p-8 border border-[#2069ff]/[0.08]">
+        <div className="flex justify-between items-center mb-6 lg:mb-8">
+          <h3 className="text-xl lg:text-2xl font-bold text-slate-900">Recente Activiteit</h3>
+          <a
+            href="#"
+            className="text-[#2069ff] text-sm font-semibold no-underline py-2 px-3 lg:px-4 rounded-lg transition-all duration-300 hover:bg-[#2069ff]/[0.05]"
+          >
+            Bekijk alle →
+          </a>
         </div>
-      </CustomerLayout>
+
+        {activities.map((activity, index) => (
+          <div
+            key={index}
+            className="flex gap-3 lg:gap-4 py-3 lg:py-4 border-b border-[#2069ff]/[0.06] last:border-b-0 transition-all duration-300 hover:bg-[#2069ff]/[0.02] hover:rounded-xl hover:mx-[-1.5rem] lg:hover:mx-[-2rem] hover:px-6 lg:hover:px-8"
+          >
+            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-[10px] bg-gradient-to-br from-[#2069ff] to-[#1557d4] flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-[0_4px_12px_rgba(32,105,255,0.25)]">
+              {activity.user}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm text-gray-700 mb-1 font-medium leading-relaxed truncate lg:whitespace-normal">
+                <span className="font-semibold">{activity.name}</span> {activity.action}
+              </div>
+              <div className="text-xs text-slate-400 font-medium">{activity.time}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white/90 backdrop-blur-[20px] rounded-2xl lg:rounded-[20px] p-6 lg:p-8 border border-[#2069ff]/[0.08]">
+        <div className="flex justify-between items-center mb-6 lg:mb-8">
+          <h3 className="text-xl lg:text-2xl font-bold text-slate-900">Snelle Acties</h3>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-1 gap-3">
+          {quickActions.map((action, index) => (
+            <button
+              key={index}
+              className="w-full p-3 lg:p-4 border border-[#2069ff]/10 rounded-xl bg-slate-50/80 text-gray-700 font-medium text-sm cursor-pointer transition-all duration-300 mb-0 lg:mb-3 last:mb-0 flex items-center gap-3 hover:bg-[#2069ff]/[0.05] hover:border-[#2069ff]/20 hover:text-[#2069ff] hover:transform hover:translate-y-[-1px] relative overflow-hidden"
+              onClick={(e) => {
+                // Ripple effect
+                const ripple = document.createElement("span")
+                const rect = e.currentTarget.getBoundingClientRect()
+                const size = Math.max(rect.width, rect.height)
+                ripple.style.cssText = `
+                  position: absolute;
+                  border-radius: 50%;
+                  background: rgba(32, 105, 255, 0.3);
+                  width: ${size}px;
+                  height: ${size}px;
+                  left: ${rect.width / 2 - size / 2}px;
+                  top: ${rect.height / 2 - size / 2}px;
+                  transform: scale(0);
+                  animation: ripple 0.6s linear;
+                  pointer-events: none;
+                `
+                e.currentTarget.style.position = "relative"
+                e.currentTarget.appendChild(ripple)
+                setTimeout(() => ripple.remove(), 600)
+              }}
+            >
+              <div className="w-4 h-4 bg-current rounded opacity-70 flex-shrink-0" />
+              <span className="truncate lg:whitespace-normal">{action}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function CustomerDashboard() {
+  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<CustomerUser | null>(null)
+
+  useEffect(() => {
+    // Simulate loading and set mock user data
+    setTimeout(() => {
+      setUser({
+        id: "1",
+        name: "Jan Janssen",
+        email: "jan@example.com",
+        company: "Janssen B.V.",
+      })
+      setIsLoading(false)
+    }, 1000)
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#2069ff] mx-auto mb-4" />
+          <p className="text-gray-600">Bezig met laden...</p>
+        </div>
+      </div>
     )
   }
 
+  if (!user) {
+    return null
+  }
+
   return (
-    <CustomerLayout user={user}>
-      <WelcomeSection user={userData} />
-      <DashboardContent userData={userData} />
+    <CustomerLayout user={user} searchPlaceholder="Zoek zendingen...">
+      <WelcomeSection user={user} />
+      <StatsGrid />
+      <DashboardGrid />
     </CustomerLayout>
   )
 }

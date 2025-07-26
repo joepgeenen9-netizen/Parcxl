@@ -1,74 +1,59 @@
 "use server"
 
+import { createServerClient } from "@/lib/supabase"
 import { redirect } from "next/navigation"
-import { supabase } from "@/lib/supabase"
 import { cookies } from "next/headers"
 
-interface LoginResult {
-  success: boolean
-  error?: string
-}
-
-export async function loginAction(formData: FormData): Promise<LoginResult> {
+export async function loginAction(formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
 
   if (!email || !password) {
-    return {
-      success: false,
-      error: "Email en wachtwoord zijn verplicht",
-    }
+    return { error: "Email en wachtwoord zijn verplicht" }
   }
 
-  try {
-    // Voor demo doeleinden gebruiken we simpele wachtwoord verificatie
-    // In productie zou je bcrypt gebruiken
-    const { data: account, error } = await supabase.from("accounts").select("*").eq("email", email).single()
+  const supabase = createServerClient()
 
-    if (error || !account) {
-      return {
-        success: false,
-        error: "Ongeldige inloggegevens",
-      }
-    }
+  // Authenticate user
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
 
-    // Simpele wachtwoord check voor demo (gebruik bcrypt in productie)
-    if (password !== "password") {
-      return {
-        success: false,
-        error: "Ongeldige inloggegevens",
-      }
-    }
-
-    // Set session cookie
-    const cookieStore = await cookies()
-    const sessionData = {
-      id: account.id,
-      email: account.email,
-      name: account.name,
-      company: account.company,
-      rol: account.rol,
-    }
-
-    cookieStore.set("user-session", JSON.stringify(sessionData), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
-
-    return { success: true }
-  } catch (error) {
-    console.error("Login error:", error)
-    return {
-      success: false,
-      error: "Er is een fout opgetreden bij het inloggen",
-    }
+  if (authError) {
+    return { error: "Ongeldige inloggegevens" }
   }
-}
 
-export async function logoutAction() {
+  if (!authData.user) {
+    return { error: "Gebruiker niet gevonden" }
+  }
+
+  // Get user role from accounts table
+  const { data: accountData, error: accountError } = await supabase
+    .from("accounts")
+    .select("rol")
+    .eq("email", email)
+    .single()
+
+  if (accountError || !accountData) {
+    return { error: "Account niet gevonden in database" }
+  }
+
+  // Set session cookie
   const cookieStore = await cookies()
-  cookieStore.delete("user-session")
-  redirect("/login")
+  cookieStore.set("supabase-auth-token", authData.session?.access_token || "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  })
+
+  // Redirect based on role
+  if (accountData.rol === "admin") {
+    redirect("/admin")
+  } else if (accountData.rol === "klant") {
+    redirect("/customer")
+  } else {
+    return { error: "Onbekende gebruikersrol" }
+  }
 }

@@ -1,16 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Package, Users, DollarSign, AlertTriangle } from "lucide-react"
+import { Loader2, Package, Users, DollarSign, AlertTriangle } from "lucide-react"
 import { AdminLayout } from "./components/admin-layout"
-import type { User } from "@/lib/auth"
 
-interface AdminDashboardProps {
-  user: User
+interface AdminUser {
+  id: string
+  name: string
+  email: string
+  role: string
 }
 
 // Enhanced Welcome section with admin theme
-function AdminWelcomeSection({ user }: { user: User }) {
+function AdminWelcomeSection({ user }: { user: AdminUser }) {
   return (
     <div className="relative bg-gradient-to-br from-[#2069ff]/[0.15] via-purple-500/[0.12] to-[#2069ff]/[0.15] rounded-2xl lg:rounded-3xl p-6 lg:p-10 mb-6 lg:mb-10 overflow-hidden border border-[#2069ff]/[0.25] min-h-[160px] lg:min-h-[200px] flex items-center cursor-pointer transition-all duration-400 hover:bg-gradient-to-br hover:from-[#2069ff]/[0.25] hover:via-purple-500/[0.2] hover:to-[#2069ff]/[0.25] hover:border-purple-500/20 hover:transform hover:translate-y-[-2px] hover:shadow-[0_10px_40px_rgba(32,105,255,0.15)] group">
       {/* Animated background circle */}
@@ -323,25 +325,36 @@ function AdminDashboardGrid() {
   )
 }
 
-export default function AdminDashboard({ user }: AdminDashboardProps) {
-  const [loading, setLoading] = useState(true)
+export default function AdminDashboard() {
+  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<AdminUser | null>(null)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
+    // Simulate loading and set mock admin user data
+    setTimeout(() => {
+      setUser({
+        id: "1",
+        name: "Admin Beheerder",
+        email: "admin@parcxl.com",
+        role: "Administrator",
+      })
+      setIsLoading(false)
     }, 1000)
-
-    return () => clearTimeout(timer)
   }, [])
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <AdminLayout user={user}>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#2069ff] mx-auto mb-4" />
+          <p className="text-gray-600">Admin dashboard laden...</p>
         </div>
-      </AdminLayout>
+      </div>
     )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
