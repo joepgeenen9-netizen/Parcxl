@@ -68,9 +68,9 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
       {/* Left border gradient */}
       <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-[#2069ff] to-[#1557d4] opacity-80" />
 
-      {/* Logo container */}
+      {/* Logo container with fixed height */}
       <div
-        className={`${isMobile ? "py-1 px-2" : "py-1.5 px-4"} relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden`}
+        className={`${isMobile ? "h-[56px]" : "h-[64px]"} px-4 relative border-b border-[#2069ff]/[0.08] flex-shrink-0 overflow-hidden flex items-center justify-center`}
       >
         {/* Enhanced animated background */}
         <div
@@ -84,58 +84,56 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
         {/* Animated package elements */}
         <div className="absolute inset-0 pointer-events-none">
           <div
-            className="absolute w-4 h-3 bg-gradient-to-br from-amber-400/50 to-amber-500/50 rounded-sm opacity-70"
+            className="absolute w-3 h-2 bg-gradient-to-br from-amber-400/50 to-amber-500/50 rounded-sm opacity-70"
             style={{
-              top: "25%",
-              left: "10%",
+              top: "20%",
+              left: "8%",
               animation: "packageFloat1 12s ease-in-out infinite",
               animationDelay: "0s",
             }}
           >
             <div className="absolute inset-0 border border-amber-600/30 rounded-sm" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-[1px] bg-amber-700/60" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-[1px] bg-amber-700/60" />
           </div>
 
           <div
-            className="absolute w-3 h-4 bg-gradient-to-br from-blue-400/45 to-blue-500/45 rounded-sm opacity-60"
+            className="absolute w-2.5 h-3 bg-gradient-to-br from-blue-400/45 to-blue-500/45 rounded-sm opacity-60"
             style={{
-              top: "30%",
-              right: "15%",
+              top: "25%",
+              right: "12%",
               animation: "packageFloat2 15s ease-in-out infinite",
               animationDelay: "3s",
             }}
           >
             <div className="absolute inset-0 border border-blue-600/30 rounded-sm" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-90 w-2 h-[1px] bg-blue-700/60" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-90 w-1.5 h-[1px] bg-blue-700/60" />
           </div>
 
           <div
-            className="absolute w-3 h-3 bg-gradient-to-br from-green-400/45 to-green-500/45 rounded-sm opacity-55"
+            className="absolute w-2.5 h-2.5 bg-gradient-to-br from-green-400/45 to-green-500/45 rounded-sm opacity-55"
             style={{
-              bottom: "35%",
-              left: "18%",
+              bottom: "20%",
+              left: "15%",
               animation: "packageFloat3 10s ease-in-out infinite",
               animationDelay: "6s",
             }}
           >
             <div className="absolute inset-0 border border-green-600/30 rounded-sm" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-[1px] bg-green-700/60" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-90 w-2 h-[1px] bg-green-700/60" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-[1px] bg-green-700/60" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-90 w-1.5 h-[1px] bg-green-700/60" />
           </div>
         </div>
 
         {/* Parcxl Logo */}
-        <div className="flex items-center justify-center relative z-10">
-          <div className="flex items-center justify-center relative">
-            <Image
-              src="/images/parcxl-logo.png"
-              alt="Parcxl Logo"
-              width={isMobile ? 140 : 120}
-              height={isMobile ? 60 : 50}
-              className="object-contain transition-all duration-300 hover:scale-105"
-              priority
-            />
-          </div>
+        <div className="relative z-10">
+          <Image
+            src="/images/parcxl-logo.png"
+            alt="Parcxl Logo"
+            width={isMobile ? 110 : 100}
+            height={isMobile ? 40 : 36}
+            className="object-contain transition-all duration-300 hover:scale-105"
+            priority
+          />
         </div>
 
         {/* Keyframe animations */}
@@ -178,15 +176,15 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             }
             25% { 
               opacity: 0.9;
-              transform: translateY(-8px) translateX(4px) rotate(6deg);
+              transform: translateY(-4px) translateX(2px) rotate(6deg);
             }
             50% { 
               opacity: 0.5;
-              transform: translateY(-4px) translateX(8px) rotate(-4deg);
+              transform: translateY(-2px) translateX(4px) rotate(-4deg);
             }
             75% { 
               opacity: 0.8;
-              transform: translateY(2px) translateX(2px) rotate(2deg);
+              transform: translateY(1px) translateX(1px) rotate(2deg);
             }
           }
 
@@ -197,11 +195,11 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             }
             33% { 
               opacity: 0.8;
-              transform: translateY(6px) translateX(-6px) rotate(-10deg);
+              transform: translateY(3px) translateX(-3px) rotate(-10deg);
             }
             66% { 
               opacity: 0.4;
-              transform: translateY(-2px) translateX(-10px) rotate(5deg);
+              transform: translateY(-1px) translateX(-5px) rotate(5deg);
             }
           }
 
@@ -212,11 +210,11 @@ export function CustomerSidebar({ user, isMobile = false }: CustomerSidebarProps
             }
             30% { 
               opacity: 0.85;
-              transform: translateY(-6px) translateX(6px) rotate(12deg);
+              transform: translateY(-3px) translateX(3px) rotate(12deg);
             }
             70% { 
               opacity: 0.65;
-              transform: translateY(4px) translateX(-4px) rotate(-6deg);
+              transform: translateY(2px) translateX(-2px) rotate(-6deg);
             }
           }
         `}</style>
