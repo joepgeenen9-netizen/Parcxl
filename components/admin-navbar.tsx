@@ -1,157 +1,122 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, ChevronDown, User, LogOut, Bell, Shield } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-interface AdminUser {
-  id: string
-  name: string
-  email: string
-  role: string
-}
+import { Bell, Search, Menu, LogOut, User, Settings, Shield } from "lucide-react"
+import { createClient } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface AdminNavbarProps {
-  user: AdminUser
   onMenuClick: () => void
-  searchPlaceholder?: string
 }
 
-export function AdminNavbar({ user, onMenuClick, searchPlaceholder = "Zoek klanten, zendingen..." }: AdminNavbarProps) {
-  const [isMenuPressed, setIsMenuPressed] = useState(false)
+export function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const supabase = createClient()
   const router = useRouter()
 
-  const handleMenuClick = () => {
-    setIsMenuPressed(true)
-    setTimeout(() => setIsMenuPressed(false), 250)
-    onMenuClick()
-  }
-
   const handleLogout = async () => {
+    setIsLoggingOut(true)
     try {
-      setIsLoggingOut(true)
-
-      if (typeof window !== "undefined") {
-        localStorage.clear()
-        sessionStorage.clear()
-
-        const cookies = document.cookie.split(";")
-        for (const cookie of cookies) {
-          const eqPos = cookie.indexOf("=")
-          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim()
-          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
-        }
-
-        window.location.replace("/admin/login")
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error("Logout error:", error)
+        toast.error("Fout bij uitloggen")
+      } else {
+        toast.success("Succesvol uitgelogd")
+        router.push("/login")
       }
     } catch (error) {
       console.error("Logout error:", error)
-      if (typeof window !== "undefined") {
-        window.location.replace("/admin/login")
-      }
+      toast.error("Er is een fout opgetreden")
+    } finally {
+      setIsLoggingOut(false)
     }
   }
 
-  const handleEditProfile = () => {
-    router.push("/admin/profiel")
-  }
-
   return (
-    <div className="bg-white/95 backdrop-blur-[20px] border-b border-[#2069ff]/[0.08] px-4 lg:px-8 py-4 lg:py-6 sticky top-0 z-20 shadow-[0_1px_10px_rgba(32,105,255,0.05)]">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleMenuClick}
-            className={`lg:hidden w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-50/80 to-white/80 border border-[#2069ff]/10 flex items-center justify-center cursor-pointer transition-all duration-350 hover:bg-gradient-to-br hover:from-[#2069ff]/[0.05] hover:to-[#2069ff]/[0.08] hover:border-[#2069ff]/20 hover:scale-105 hover:shadow-[0_4px_15px_rgba(32,105,255,0.1)] active:scale-95 backdrop-blur-sm ${
-              isMenuPressed
-                ? "bg-gradient-to-br from-[#2069ff]/10 to-[#2069ff]/15 border-[#2069ff]/30 scale-95 shadow-[0_2px_8px_rgba(32,105,255,0.2)]"
-                : ""
-            }`}
-          >
-            <Menu
-              className={`w-6 h-6 text-slate-600 transition-all duration-350 ${
-                isMenuPressed ? "text-[#2069ff] scale-110 rotate-180" : "group-hover:text-[#2069ff]"
-              }`}
-            />
-          </button>
-          <div className="flex flex-col gap-2">{/* Empty left side */}</div>
+    <header className="bg-white border-b border-slate-200 px-4 lg:px-6 h-16 flex items-center justify-between">
+      {/* Left side - Mobile menu button */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="sm" className="lg:hidden" onClick={onMenuClick}>
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        {/* Admin badge */}
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm font-medium">
+          <Shield className="h-4 w-4" />
+          Admin Panel
         </div>
 
-        <div className="flex gap-3 lg:gap-6 items-center">
-          {/* Search */}
-          <div className="relative w-full max-w-[200px] lg:max-w-[400px]">
-            <div className="absolute left-3 lg:left-5 top-1/2 transform -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 bg-gradient-to-br from-[#2069ff] to-[#1557d4] rounded-full transition-all duration-300 shadow-[0_2px_8px_rgba(32,105,255,0.2)]">
-              <div className="absolute top-[2px] lg:top-[3px] left-[2px] lg:left-[3px] w-2 h-2 lg:w-3 lg:h-3 border-2 border-white rounded-full bg-transparent" />
-              <div className="absolute bottom-[1px] lg:bottom-[2px] right-[1px] lg:right-[2px] w-[4px] lg:w-[6px] h-[1px] lg:h-[2px] bg-white rounded-[1px] transform rotate-45" />
-            </div>
-            <input
-              type="text"
-              className="w-full py-3 lg:py-4 px-4 lg:px-6 pl-10 lg:pl-14 border-2 border-[#2069ff]/15 rounded-2xl lg:rounded-[20px] bg-slate-50/80 backdrop-blur-[15px] text-sm transition-all duration-300 text-slate-900 shadow-[0_2px_10px_rgba(32,105,255,0.08)] focus:outline-none focus:border-[#2069ff] focus:bg-white/95 focus:shadow-[0_0_0_4px_rgba(32,105,255,0.12),_0_8px_25px_rgba(32,105,255,0.15)] focus:transform focus:translate-y-[-2px] focus:scale-[1.02]"
-              placeholder={searchPlaceholder}
-            />
-          </div>
-
-          {/* Notification */}
-          <div className="relative w-10 h-10 lg:w-11 lg:h-11 rounded-xl bg-slate-50/80 border border-[#2069ff]/10 flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-[#2069ff]/[0.05] hover:border-[#2069ff]/20 hover:transform hover:translate-y-[-1px] hover:shadow-[0_4px_15px_rgba(32,105,255,0.1)]">
-            <Bell className="w-4 h-4 lg:w-5 lg:h-5 text-slate-500" />
-            <div className="absolute top-[-4px] right-[-4px] w-4 h-4 lg:w-[18px] lg:h-[18px] bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-[0.6rem] lg:text-[0.7rem] font-bold text-white border-2 border-white shadow-[0_2px_8px_rgba(239,68,68,0.3)]">
-              7
-            </div>
-          </div>
-
-          {/* Profile Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-2 lg:gap-3 py-2 px-3 lg:px-4 rounded-xl bg-slate-50/80 border border-[#2069ff]/10 cursor-pointer transition-all duration-300 hover:bg-white/90 hover:border-[#2069ff]/20 hover:shadow-[0_4px_15px_rgba(32,105,255,0.1)] hover:transform hover:translate-y-[-1px] group">
-                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs lg:text-sm shadow-[0_4px_12px_rgba(147,51,234,0.3)]">
-                  <Shield className="w-4 h-4 lg:w-5 lg:h-5" />
-                </div>
-                <div className="hidden sm:flex flex-col">
-                  <div className="font-semibold text-sm text-slate-900">{user.name.split(" ")[0]}</div>
-                  <div className="text-xs text-slate-500">{user.role}</div>
-                </div>
-                <ChevronDown className="w-4 h-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-56 bg-white/95 backdrop-blur-[20px] border border-[#2069ff]/10 shadow-[0_8px_30px_rgba(32,105,255,0.12)] rounded-xl p-2"
-              sideOffset={8}
-            >
-              <div className="px-3 py-2 mb-2">
-                <div className="font-medium text-sm text-slate-900">{user.name}</div>
-                <div className="text-xs text-slate-500">{user.email}</div>
-                <div className="text-xs text-purple-600 font-medium">{user.role}</div>
-              </div>
-              <DropdownMenuSeparator className="bg-[#2069ff]/10" />
-              <DropdownMenuItem
-                onClick={handleEditProfile}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-[#2069ff]/[0.05] hover:text-[#2069ff] rounded-lg cursor-pointer transition-all duration-200 focus:bg-[#2069ff]/[0.05] focus:text-[#2069ff]"
-              >
-                <User className="w-4 h-4" />
-                Admin Profiel
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-[#2069ff]/10" />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg cursor-pointer transition-all duration-200 focus:bg-red-50 focus:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <LogOut className="w-4 h-4" />
-                {isLoggingOut ? "Uitloggen..." : "Uitloggen"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* Search bar - hidden on mobile */}
+        <div className="hidden md:flex items-center relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+          <input
+            type="text"
+            placeholder="Zoeken..."
+            className="pl-10 pr-4 py-2 w-64 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2069ff] focus:border-transparent"
+          />
         </div>
       </div>
-    </div>
+
+      {/* Right side - Notifications and user menu */}
+      <div className="flex items-center gap-4">
+        {/* Notifications */}
+        <Button variant="ghost" size="sm" className="relative">
+          <Bell className="h-5 w-5" />
+          <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            5
+          </span>
+        </Button>
+
+        {/* User menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/placeholder-user.jpg" alt="Admin" />
+                <AvatarFallback className="bg-red-100 text-red-700">AD</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">Admin User</p>
+                <p className="text-xs leading-none text-muted-foreground">admin@parcxl.com</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Shield className="h-3 w-3 text-red-600" />
+                  <span className="text-xs text-red-600 font-medium">Administrator</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" />
+              <span>Profiel</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Instellingen</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{isLoggingOut ? "Uitloggen..." : "Uitloggen"}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
   )
 }

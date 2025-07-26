@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react"
 import { Loader2, TrendingUp, Clock, Package } from "lucide-react"
 import { CustomerLayout } from "./components/customer-layout"
+import { createClient } from "@/lib/supabase" // Declaring the createClient variable
 
 interface CustomerUser {
   id: string
-  name: string
+  first_name: string | null
+  last_name: string | null
   email: string
-  company?: string
+  user_type: "customer" | "admin"
 }
 
 // Enhanced Welcome section with shipping theme
 function WelcomeSection({ user }: { user: CustomerUser }) {
+  const displayName = user.first_name || user.email.split("@")[0]
   return (
     <div className="relative bg-gradient-to-br from-[#2069ff]/[0.15] via-amber-500/[0.12] to-[#2069ff]/[0.15] rounded-2xl lg:rounded-3xl p-6 lg:p-10 mb-6 lg:mb-10 overflow-hidden border border-[#2069ff]/[0.25] min-h-[160px] lg:min-h-[200px] flex items-center cursor-pointer transition-all duration-400 hover:bg-gradient-to-br hover:from-[#2069ff]/[0.25] hover:via-amber-500/[0.2] hover:to-[#2069ff]/[0.25] hover:border-amber-500/20 hover:transform hover:translate-y-[-2px] hover:shadow-[0_10px_40px_rgba(32,105,255,0.15)] group">
       {/* Animated background circle */}
@@ -21,7 +24,7 @@ function WelcomeSection({ user }: { user: CustomerUser }) {
       {/* Content */}
       <div className="relative z-[2] flex flex-col justify-center h-full max-w-[85%] lg:max-w-[75%]">
         <h2 className="text-xl lg:text-4xl font-extrabold text-slate-900 mb-2 lg:mb-3 leading-tight">
-          Welkom terug, {user.name.split(" ")[0]}! Klaar om te verzenden?
+          Welkom terug, {displayName}! Klaar om te verzenden?
         </h2>
         <p className="text-slate-600 text-sm lg:text-lg font-normal leading-relaxed mb-4">
           Je verzendlabels zijn klaar voor gebruik. Alles staat gereed voor snelle verzending.
@@ -86,6 +89,7 @@ function WelcomeSection({ user }: { user: CustomerUser }) {
             </div>
 
             <div className="absolute top-1/2 left-0 w-full h-[1px] lg:h-[2px] bg-blue-800/60 transform -translate-y-1/2" />
+            <div className="absolute top-0 left-1/2 w-[1px] lg:w-[2px] h-full bg-blue-800/60 transform -translate-x-1/2" />
           </div>
 
           {/* Package 3 - International shipping */}
@@ -337,16 +341,31 @@ export default function CustomerDashboard() {
   const [user, setUser] = useState<CustomerUser | null>(null)
 
   useEffect(() => {
-    // Simulate loading and set mock user data
-    setTimeout(() => {
-      setUser({
-        id: "1",
-        name: "Jan Janssen",
-        email: "jan@example.com",
-        company: "Janssen B.V.",
-      })
+    const fetchUser = async () => {
+      const supabase = createClient()
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (session?.user) {
+        const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single()
+
+        if (profile) {
+          setUser({
+            id: profile.id,
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            email: session.user.email || "",
+            user_type: profile.user_type,
+          })
+        }
+      }
+
       setIsLoading(false)
-    }, 1000)
+    }
+
+    fetchUser()
   }, [])
 
   if (isLoading) {
